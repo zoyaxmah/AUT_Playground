@@ -42,6 +42,14 @@ function WelcomeScreen({ navigation }) {
                     navigation.navigate('Home');
                 }}
             />
+            <View style={styles.signupContainer}>
+                <Text style={styles.signupText}>
+                    Don't have an account?{' '}
+                    <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                        <Text style={styles.signupLink}>Create one</Text>
+                    </TouchableOpacity>
+                </Text>
+            </View>
         </View>   
     );
 }
@@ -88,9 +96,19 @@ const styles = StyleSheet.create({
         height: 20,
         width: 100,
         backgroundColor: 'orange',
-        
-
-
+    
+    },
+    signupContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    signupText: {
+        fontSize: 14,
+        color: '#fff',
+    },
+    signupLink: {
+        color: '#00f',
+        fontWeight: 'bold',
     }
 });
 
