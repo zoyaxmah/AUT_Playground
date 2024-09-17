@@ -11,6 +11,7 @@ function AppNavigator(){
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Welcome">
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="SignUp" component={SignUpScreen} />
                 <Stack.Screen name="Home" component={HomeScreen} />
             </Stack.Navigator>
         </NavigationContainer>
