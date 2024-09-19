@@ -9,10 +9,13 @@
     "splash": {
       "image": ".app/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "useNextNotificationsApi": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
     },
     "android": {
       "adaptiveIcon": {
