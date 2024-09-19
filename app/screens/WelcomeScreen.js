@@ -7,12 +7,56 @@ import { View,
     Image,
     Button,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function WelcomeScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState(''); 
+
+    // Function to get stored credentials
+    const getStoredCredentials = async () => {
+        try {
+            const storedEmail = await AsyncStorage.getItem('userEmail');
+            const storedPassword = await AsyncStorage.getItem('userPassword');
+            return { storedEmail, storedPassword };
+        } catch (error) {
+            setErrorMessage('Error retrieving stored credentials.');
+        }
+        return null;
+    };
+
+    const handleLogin = async () => {
+        // Clear any previous error message
+        setErrorMessage('');
+
+        // Check if both fields are filled
+        if (!username || !password) {
+            setErrorMessage('Please enter both email and password.');
+            return;
+        }
+        console.log("Login button pressed");
+        const credentials = await getStoredCredentials();
+
+        if (!credentials) {
+            setErrorMessage('No stored credentials found.');
+            return;
+        }
+
+        const { storedEmail, storedPassword } = credentials;
+        console.log("Entered Password:", password);
+
+        if (username === storedEmail && password === storedPassword) {
+            console.log('Logged in successfully!');
+            navigation.navigate('Home');
+        } else {
+            setErrorMessage('Invalid email or password.');
+        }
+        
+    };
 
     return (
+        
         <View style={styles.background}>
             <Image
                 source={require('../PlaygroundLogo.png')}
@@ -31,22 +75,24 @@ function WelcomeScreen({ navigation }) {
                 placeholder="Password"
                 secureTextEntry={true}
                 value={password}
-                oneChangeText={text => setPassword(text)}
+                onChangeText={text => setPassword(text)}
             />
             </View>
+
+            {errorMessage ? (
+                    <Text style={styles.errorText}>{errorMessage}</Text>
+                ) : null}
+
             <Button 
                 style={styles.loginButton}
                 title="Login"
-                onPress={() => {
-                    console.log('Logged in!');
-                    navigation.navigate('Home');
-                }}
+                onPress={handleLogin}
             />
             <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>
                     Don't have an account?{' '}
                     <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                        <Text style={styles.signupLink}>Create one</Text>
+                        <Text style={styles.signupLink}>Sign Up!</Text>
                     </TouchableOpacity>
                 </Text>
             </View>
@@ -107,8 +153,12 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     signupLink: {
-        color: '#00f',
+        color: '#000000',
         fontWeight: 'bold',
+    },
+    errorText: {
+        color: 'red',  // Set the color for error messages
+        marginBottom: 10,
     }
 });
 
