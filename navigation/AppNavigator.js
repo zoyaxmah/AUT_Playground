@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import WelcomeScreen from '../app/screens/WelcomeScreen';
 import HomeScreen from '../app/screens/HomeScreen';
 import GameScreen from '../app/screens/GameScreen';
+import ContactScreen from '../app/screens/ContactScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,10 @@ function AppNavigator(){
                 name="Game" 
                 component={GameScreen}
                 options={{ headerShown: false}}  />
+                <Stack.Screen
+                name="Contact"
+                component={ContactScreen}
+                options={{ headerShown: false}} />
             </Stack.Navigator>
         </NavigationContainer>
     );
