@@ -4,10 +4,10 @@
     "slug": "Try1",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": ".assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": ".app/assets/splash.png",
+      "image": ".app/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,12 +16,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": ".app/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": ".app/favicon.png"
     }
   }
 }

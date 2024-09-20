@@ -1,22 +1,41 @@
-import REact, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, 
     StyleSheet,
     TouchableOpacity,
     Text,
-    TextInput,
-    Image,
+    Alert,
+    Image
 } from 'react-native';
 
-function Homescreen({ Navigation}) {
+function Homescreen({ navigation }) {
+    
+
     return (
         <View style={styles.background}>
-            <View style={styles.bottomPanel}>
-                <Image
-                    source={require('../PlaygroundLogo.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
+            <Image
+                source={require('../../assets/PlaygroundLogo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+            />
+            <Image
+                source={require('../../assets/HomeButton.png')}
+                style={styles.homeButton}
+                resizeMode="contain"
+            />
+            <TouchableOpacity
+                onPress={() => {
+                    console.log('game time!');
+                    navigation.navigate('Game');
+                }}
+                style={[styles.touchableOpacity, {padding: 10}]}
+            >
+                <Image 
+                source={require('../../assets/GameButton.png')}
+                style={styles.gameButton}
+                resizeMode="contain"
                 />
-            </View>
+            </TouchableOpacity>
+            <View style={styles.bottomPanel} />
         </View>
     )
 }
@@ -25,23 +44,45 @@ const styles = StyleSheet.create({
     background: {
         flex: 1,
         backgroundColor: "#fc6a26",
-        justifyContent: 'center',
-        alignItems: 'center',
+    },
+    touchableOpacity: {
+        position: 'absolute',
+        bottom:0,
+        left:20,
+        zIndex: 2,
+        backgroundColor:'transparent',
     },
     logo: {
         width: 100, 
         height: 60,
-        marginBottom: 1450,
-
+        position:'absolute',
+        top:'5%',
+        left: '38%',
+    },
+    homeButton: {
+        width: 30,
+        height:30,
+        position: 'absolute',
+        bottom: 15,
+        left: '47%',
+        zIndex: 1,
+    },
+    gameButton: {
+        width: 30,
+        height:30,
+        position: 'absolute',
+        bottom: 15,
+        left: 20,
+        zIndex:1,
     },
     bottomPanel: {
-        height: 70,
+        height: 58,
         width: '100%',
         backgroundColor: '#ffd13b',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: -740,
-    }
+        position:'absolute',
+        bottom:0,
+        zIndex: 0,
+    },
 });
 
 export default Homescreen;
