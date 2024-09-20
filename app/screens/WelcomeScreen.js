@@ -15,7 +15,7 @@ function WelcomeScreen({ navigation }) {
     return (
         <View style={styles.background}>
             <Image
-                source={require('../PlaygroundLogo.png')}
+                source={require('../../assets/PlaygroundLogo.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />
@@ -31,17 +31,19 @@ function WelcomeScreen({ navigation }) {
                 placeholder="Password"
                 secureTextEntry={true}
                 value={password}
-                oneChangeText={text => setPassword(text)}
+                onChangeText={text => setPassword(text)}
             />
             </View>
-            <Button 
-                style={styles.loginButton}
+            <TouchableOpacity 
+                style={styles.loginButton} 
                 title="Login"
                 onPress={() => {
                     console.log('Logged in!');
                     navigation.navigate('Home');
                 }}
-            />
+            >
+                <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
         </View>   
     );
 }
@@ -54,16 +56,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     loginButton: {
-        width: 150,
-        height: 50,
-        backgroundColor: "#faaf52",
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 5,
+        width: 110,
+        height: 40,
+        backgroundColor: "#ffd13b",
+        position: "absolute",
+        bottom: "30%",
+        borderRadius:5,
+        justifyContent:'center',
+        alignItems:'center',
     },
     buttonText: {
-        color: '#d95e00',
+        color: 'white',
         fontSize: 18,
+        fontWeight: 'bold',
     },
     inputContainer: {
         width: 250,
@@ -83,14 +88,6 @@ const styles = StyleSheet.create({
         width: 120,
         height: 80,
         marginBottom: 20,
-    },
-    loginButton: {
-        height: 20,
-        width: 100,
-        backgroundColor: 'orange',
-        
-
-
     }
 });
 
