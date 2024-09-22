@@ -39,6 +39,16 @@ function GameScreen() {
             <View style={styles.container}>
                 <Text style={styles.timer}>{formatTime(timeLeft)}</Text>
                 <View style={styles.bottomPanel} />
+                <Text style={styles.gameTitle}>
+                    Mix and Match
+                </Text>
+                <Text style={styles.instructionsBody}>
+                    You will be assigned a random team{'\n'}
+                    shape that consists of the other players.{'\n'}
+                    For your team to win you must be{'\n'}
+                    the first to complete your team!{'\n'}
+                    Good luck, everyone!
+                </Text>
             </View>
         </ScrollView>
     );
@@ -60,6 +70,19 @@ const styles = StyleSheet.create({
         color: '#fff',
         position: 'absolute',
         top: '15%',
+    },
+    gameTitle: {
+        position: 'absolute',
+        color: "#fff",
+        top: '30%',
+        fontSize: 30,
+    },
+    instructionsBody:{
+        textAlign: 'center',
+        position: 'absolute',
+        color: '#fff',
+        top: '40%',
+        fontSize: 20,
     },
     bottomPanel: {
         height: 58,
