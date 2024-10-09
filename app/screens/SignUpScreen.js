@@ -7,18 +7,18 @@ import { View,
     Text, 
     Alert 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import * as SecureStore from 'expo-secure-store';
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    // Function to save data to AsyncStorage
+    // Function to save data to SecureStore
     const storeCredentials = async (email, password) => {
         try {
-            await AsyncStorage.setItem('userEmail', email);
-            await AsyncStorage.setItem('userPassword', password);
+            await SecureStore.setItemAsync('userEmail', email);
+            await SecureStore.setItemAsync('userPassword', password);
         } catch (error) {
             Alert.alert('Error', 'Failed to save credentials.');
         }

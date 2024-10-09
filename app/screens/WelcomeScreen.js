@@ -7,7 +7,7 @@ import { View,
     Image,
     Button,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 function WelcomeScreen({ navigation }) {
     const [username, setUsername] = useState('');
@@ -17,8 +17,8 @@ function WelcomeScreen({ navigation }) {
     // Function to get stored credentials
     const getStoredCredentials = async () => {
         try {
-            const storedEmail = await AsyncStorage.getItem('userEmail');
-            const storedPassword = await AsyncStorage.getItem('userPassword');
+            const storedEmail = await SecureStore.getItemAsync('userEmail');
+            const storedPassword = await SecureStore.getItemAsync('userPassword');
             return { storedEmail, storedPassword };
         } catch (error) {
             setErrorMessage('Error retrieving stored credentials.');
