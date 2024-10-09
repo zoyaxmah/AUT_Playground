@@ -7,21 +7,24 @@
     "icon": ".assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": ".app/splash.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "useNextNotificationsApi": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": ".app/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": ".app/favicon.png"
+      "favicon": ".assets/icon.png"
     }
   }
 }
