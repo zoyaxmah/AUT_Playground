@@ -69,14 +69,14 @@ function WelcomeScreen({ navigation }) {
                     placeholder="Username"
                     value={username}
                     onChangeText={text => setUsername(text)}
-            />
-            <TextInput  
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                value={password}
-                onChangeText={text => setPassword(text)}
-            />
+                />
+                <TextInput  
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    value={password}
+                    onChangeText={text => setPassword(text)}
+                />
             </View>
 
             {errorMessage ? (
