@@ -1,43 +1,32 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
-import WelcomeScreen from '../app/screens/WelcomeScreen';
-import HomeScreen from '../app/screens/HomeScreen';
-import GameScreen from '../app/screens/GameScreen';
-import ContactScreen from '../app/screens/ContactScreen';
-import SignUpScreen from '../app/screens/SignUpScreen';
+import { View, Text } from 'react-native'
+import React from 'react'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import WelcomeScreen from '../app/screens/WelcomeScreen.js'
+import HomeScreen from '../app/screens/HomeScreen.js'
+import GameScreen from '../app/screens/GameScreen.js'
+import ContactScreen from '../app/screens/ContactScreen.js'
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-function AppNavigator(){
-    return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Welcome">
-                <Stack.Screen 
-                name="Welcome" 
-                component={WelcomeScreen}
-                options={{ headerShown: false}} />
-                <Stack.Screen 
-                name="Home" 
-                component={HomeScreen}
-                options={{ headerShown: false}} />
+export default function TabNavigation(){
+  return (
+    <Tab.Navigator>
 
-                <Stack.Screen
-                name="SignUp"
-                component={SignUpScreen}
-                options={{ headerShown: false}} />
+      <Tab.Screen 
+      name="Home" 
+      component={HomeScreen}
+      options={{headerShown:false}} />
 
-                <Stack.Screen 
-                name="Game" 
-                component={GameScreen}
-                options={{ headerShown: false}}  />
-                <Stack.Screen
-                name="Contact"
-                component={ContactScreen}
-                options={{ headerShown: false}} />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+      <Tab.Screen
+      name="Game"
+      component={GameScreen}
+      options={{headerShown:false}}  />
+
+      <Tab.Screen
+      name="Contact"
+      component={ContactScreen}
+      options={{headerShown:false}}  />
+      
+    </Tab.Navigator>
+  );
 }
-
-export default AppNavigator;

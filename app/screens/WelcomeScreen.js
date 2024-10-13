@@ -48,7 +48,7 @@ function WelcomeScreen({ navigation }) {
 
         if (username === storedEmail && password === storedPassword) {
             console.log('Logged in successfully!');
-            navigation.navigate('Home');
+            navigation.navigate('TabNavigate');
         } else {
             setErrorMessage('Invalid email or password.');
         }
