@@ -27,7 +27,7 @@
       "favicon": ".assets/icon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      
     ]
   }
 }

@@ -7,52 +7,32 @@ import { View,
     Image,
     Button,
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebaseConfig.js';
 
 function WelcomeScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(''); 
 
-    // Function to get stored credentials
-    const getStoredCredentials = async () => {
-        try {
-            const storedEmail = await SecureStore.getItemAsync('userEmail');
-            const storedPassword = await SecureStore.getItemAsync('userPassword');
-            return { storedEmail, storedPassword };
-        } catch (error) {
-            setErrorMessage('Error retrieving stored credentials.');
-        }
-        return null;
-    };
-
+    
     const handleLogin = async () => {
-        // Clear any previous error message
         setErrorMessage('');
 
-        // Check if both fields are filled
         if (!username || !password) {
             setErrorMessage('Please enter both email and password.');
-            return;
-        }
-        console.log("Login button pressed");
-        const credentials = await getStoredCredentials();
-
-        if (!credentials) {
-            setErrorMessage('No stored credentials found.');
-            return;
+            eturn;
         }
 
-        const { storedEmail, storedPassword } = credentials;
-        console.log("Entered Password:", password);
-
-        if (username === storedEmail && password === storedPassword) {
+        try {
+            // Firebase Authentication with email and password using modular import
+            await signInWithEmailAndPassword(auth, username, password);
             console.log('Logged in successfully!');
             navigation.navigate('Home');
-        } else {
+        } catch (error) {
             setErrorMessage('Invalid email or password.');
+            console.error('Login error:', error.message);
         }
-        
     };
 
     return (

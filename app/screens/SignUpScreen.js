@@ -7,22 +7,16 @@ import { View,
     Text, 
     Alert 
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword 
+} from 'firebase/auth';
+import { auth } from '../../firebaseConfig.js';
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
-    // Function to save data to SecureStore
-    const storeCredentials = async (email, password) => {
-        try {
-            await SecureStore.setItemAsync('userEmail', email);
-            await SecureStore.setItemAsync('userPassword', password);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to save credentials.');
-        }
-    };
 
     const handleSignUp = async () => {
         if (!email || !password || !confirmPassword) {
@@ -34,13 +28,17 @@ function SignUpScreen({ navigation }) {
         } else if (password !== confirmPassword) {
             Alert.alert('Error', 'Passwords do not match!');
         } else {
-            // Save the credentials locally using AsyncStorage
-            await storeCredentials(email, password);
-            console.log('Account created successfully!');
-            // After successful sign-up, navigate back to the login page
-            navigation.navigate('Welcome');  
+            try {
+                // Firebase Authentication to create a new user with modular import
+                await createUserWithEmailAndPassword(auth, email, password);
+                console.log('Account created successfully!');
+                Alert.alert('Success', 'Account created successfully! Please log in.');
+                navigation.navigate('Welcome');  
+            } catch (error) {
+                Alert.alert('Error', error.message);
+                console.error('Sign-up error:', error.message);
+            }
         }
-        
     };
 
     return (
