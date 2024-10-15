@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import AppNavigator from './navigation/AppNavigator';
 import { requestNotificationPermission, scheduleNotifications, handleNotificationResponse } from './NotificationHandler';
+import { NavigationContainer } from '@react-navigation/native';
+import {createStackNavigator } from '@react-navigation/stack';
+import TabNavigation from './navigation/AppNavigator';
+import WelcomeScreen from './app/screens/WelcomeScreen';
+import SignUpScreen from './app/screens/SignUpScreen';
+
+const Stack = createStackNavigator();
 
 export default function App({ navigation }) {
   useEffect(() => {
@@ -36,7 +42,25 @@ export default function App({ navigation }) {
   return (
     <>
       <StatusBar style="auto" />
-      <AppNavigator />
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen 
+          name="Login"
+          component={WelcomeScreen}
+          options={{headerShown:false}}  />
+
+          <Stack.Screen
+          name="SignUp"
+          component={SignUpScreen}
+          options={{headerShown:false}}  />
+
+          <Stack.Screen 
+          name="TabNavigate"
+          component={TabNavigation}
+          options={{headerShown:false}}  />
+        </Stack.Navigator>
+        
+      </NavigationContainer>
     </>
   );
 }

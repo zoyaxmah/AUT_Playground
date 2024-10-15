@@ -28,8 +28,8 @@ function WelcomeScreen({ navigation }) {
             // Firebase Authentication with email and password using modular import
             await signInWithEmailAndPassword(auth, username, password);
             console.log('Logged in successfully!');
-            navigation.navigate('Home');
-        } catch (error) {
+            navigation.navigate('TabNavigate');
+        } catch(error){
             setErrorMessage('Invalid email or password.');
             console.error('Login error:', error.message);
         }
@@ -49,14 +49,14 @@ function WelcomeScreen({ navigation }) {
                     placeholder="Username"
                     value={username}
                     onChangeText={text => setUsername(text)}
-            />
-            <TextInput  
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                value={password}
-                onChangeText={text => setPassword(text)}
-            />
+                />
+                <TextInput  
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    value={password}
+                    onChangeText={text => setPassword(text)}
+                />
             </View>
 
             {errorMessage ? (
@@ -88,16 +88,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     loginButton: {
-        width: 150,
-        height: 50,
-        backgroundColor: "#faaf52",
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 5,
+        width: 110,
+        height: 40,
+        backgroundColor: "#ffd13b",
+        position: "absolute",
+        bottom: "30%",
+        borderRadius:5,
+        justifyContent:'center',
+        alignItems:'center',
     },
     buttonText: {
-        color: '#d95e00',
+        color: 'white',
         fontSize: 18,
+        fontWeight: 'bold',
     },
     inputContainer: {
         width: 250,
