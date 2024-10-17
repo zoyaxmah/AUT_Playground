@@ -24,19 +24,15 @@ with eachother. Recieving tokens that can be redeemed to win awards or coupons w
 
 git clone https://github.com/shanayeen/AUT_Playground.git
 
-cd AUT_PLAYGROUND
-
-```
+cd yourproject
 
 2.  **Install dependencies**:
 
 Install all the required packages by running the following command inside your project directory:
 
-```bash
+'''bash
 
 npm install
-
-```
 
 3.  **Set up Firebase**:
 
@@ -52,7 +48,8 @@ To integrate Firebase Authentication into your app, follow these steps:
 
 - Create a new file called firebaseConfig.js in your project and paste the following content, replacing the values with your Firebase project details:
 
-```js
+'''js
+
 export const firebaseConfig = {
   apiKey: "AIzaSyBGIKtYX7TJBvrjQMVzsei6fynEZ2BC-PM",
   authDomain: "aut-playground.firebaseapp.com",
@@ -61,41 +58,36 @@ export const firebaseConfig = {
   messagingSenderId: "731605926574",
   appId: "1:731605926574:web:20b685e88682c1576ca33f",
 };
-```
 
-4. **Running the project**:
+Running the project:
 
 On mobile devices (using Expo Go): Run the following command to start the Expo bundler and scan the QR code using the Expo Go app:
 
-```bash
+bash
 
 npx expo start
 
-```
-
 For web: To start the project in your web browser, use this command:
 
-```bash
+bash
 
 npx expo start --web
-```
 
 Firebase Authentication Setup:
 In your code, make sure you've imported Firebase and initialized the app using the configuration from firebaseConfig.js. This can be done in your app's initialization file (like App.js or a dedicated Firebase setup file):
 
-```js
-import { initializeApp } from "firebase/app";
+js
 
-import { firebaseConfig } from "./firebaseConfig";
+import { initializeApp } from 'firebase/app';
+
+import { firebaseConfig } from './firebaseConfig';
 
 const app = initializeApp(firebaseConfig);
-```
 
 Clearing Cache and Troubleshooting:
 If you face issues with dependencies or Metro Bundler, clear the cache and try running the app again:
 
-```bash
+bash
 
 npx expo start -c
-
 ```
