@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, 
+import { 
+    View, 
     StyleSheet, 
     TextInput, 
-    Button,
+    Button, 
     Image, 
     Text, 
     Alert 
@@ -11,7 +12,8 @@ import {
     getAuth, 
     createUserWithEmailAndPassword 
 } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { auth } from '../../firebaseConfig.js'; // Importing Firebase auth
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -29,11 +31,18 @@ function SignUpScreen({ navigation }) {
             Alert.alert('Error', 'Passwords do not match!');
         } else {
             try {
-                // Firebase Authentication to create a new user with modular import
-                await createUserWithEmailAndPassword(auth, email, password);
+                // Create a new user with Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Store the email locally in AsyncStorage
+                await AsyncStorage.setItem('user_email', email);
+
                 console.log('Account created successfully!');
-                Alert.alert('Success', 'Account created successfully! Please log in.');
-                navigation.navigate('Welcome');  
+                Alert.alert('Success', 'Account created successfully!');
+
+                // Navigate to the Welcome screen
+                navigation.navigate('Welcome');
             } catch (error) {
                 Alert.alert('Error', error.message);
                 console.error('Sign-up error:', error.message);
