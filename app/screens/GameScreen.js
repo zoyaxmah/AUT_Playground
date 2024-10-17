@@ -6,10 +6,11 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { io } from 'socket.io-client';
 
 const { height } = Dimensions.get('window');
-const socket = io('http://localhost:3000'); // Ensure this matches your server URL
+const socket = io('http://192.168.1.65:3000'); // Use your machine's local IP address
 
 const GameScreen = ({ navigation }) => {
     const [isGameAvailable, setIsGameAvailable] = useState(false);
+    const [eventDetails, setEventDetails] = useState(null);
     const translateY = useSharedValue(height); // Start panel off-screen
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -20,6 +21,7 @@ const GameScreen = ({ navigation }) => {
         // Listen for event availability
         socket.on('event-available', (event) => {
             console.log('Event received:', event);
+            setEventDetails(event);
             setIsGameAvailable(true); // Show the game when available
         });
 
@@ -39,6 +41,10 @@ const GameScreen = ({ navigation }) => {
         } else {
             translateY.value = withSpring(height / 2); // Snap to halfway
         }
+    };
+
+    const handleJoinGame = () => {
+        navigation.navigate('BountyHunter', { eventDetails });
     };
 
     return (
@@ -74,15 +80,15 @@ const GameScreen = ({ navigation }) => {
                     <View style={styles.panelContent}>
                         <View style={styles.textContainer}>
                             <Text style={styles.panelTitle}>Available Games</Text>
-                            {isGameAvailable ? (
+                            {isGameAvailable && eventDetails ? (
                                 <>
-                                    <Text style={styles.panelSubTitle}>Bounty Hunter</Text>
+                                    <Text style={styles.panelSubTitle}>{eventDetails.name}</Text>
                                     <Text style={styles.panelDescription}>
-                                        Find the Hider & Win
+                                        {eventDetails.description}
                                     </Text>
                                     <TouchableOpacity
                                         style={styles.button}
-                                        onPress={() => navigation.navigate('BountyHunter')} // Correctly navigate to BountyHunter
+                                        onPress={handleJoinGame} // Join game
                                     >
                                         <Text style={styles.buttonText}>Join Game</Text>
                                     </TouchableOpacity>

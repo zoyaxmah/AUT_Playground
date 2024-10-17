@@ -1,8 +1,8 @@
-POST http://localhost:3000/create-event
+POST http://192.168.1.65:3000/create-event
 Content-Type: application/json
 
 {
   "name": "Bounty Hunter",
   "description": "Find the hider and win!",
-  "startTime": "2024-10-16T16:30:30+13:00"
+  "startTime": "2024-10-18T00:21:00+13:00"
 }

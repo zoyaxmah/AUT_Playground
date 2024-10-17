@@ -6,6 +6,7 @@ import ContactScreen from '../app/screens/ContactScreen';
 import GameScreen from '../app/screens/GameScreen';
 import BountyHunter from '../app/screens/BountyHunter/BountyHunter';
 import BountyHunter2 from '../app/screens/BountyHunter/BountyHunter2';
+import WelcomeScreen from '../app/screens/WelcomeScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -15,6 +16,7 @@ function GameStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="GameScreen" component={GameScreen} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="BountyHunter" component={BountyHunter} />
       <Stack.Screen name="BountyHunter2" component={BountyHunter2} />
     </Stack.Navigator>

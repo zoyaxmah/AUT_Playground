@@ -14,7 +14,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { io } from 'socket.io-client';
 
 const { height } = Dimensions.get('window');
-const socket = io('http://127.0.0.1.x.x:3000'); // Replace with your IP
+const socket = io('http://192.168.1.65:3000'); // Use your machine's local IP address
 
 /**
  * BountyHunter2 is a React Native component that provides a MapView with a sliding
@@ -33,92 +33,143 @@ const socket = io('http://127.0.0.1.x.x:3000'); // Replace with your IP
  * - points: The Hunter's points.
  */
 export default function BountyHunter2({ navigation }) {
-    const [role, setRole] = useState(''); // Store the player's role
-    const [players, setPlayers] = useState([]); // Track connected players
-    const [code, setCode] = useState(''); // Store the Hider's code
-    const [inputCode, setInputCode] = useState(''); // Store Hunter's input
-    const [points, setPoints] = useState(0); // Track Hunter's points
+    const [role, setRole] = useState(''); // Player's role: Hider or Hunter
+    const [players, setPlayers] = useState([]); // List of connected players
+    const [code, setCode] = useState(''); // Hider's generated code
+    const [inputCode, setInputCode] = useState(''); // Hunter's entered code
+    const [points, setPoints] = useState(0); // Hunter's points
+    const [canJoinGame, setCanJoinGame] = useState(false); // Controls "Join Game" button visibility
+    const [countdown, setCountdown] = useState(0); // Countdown timer for game start
 
-    const translateY = useSharedValue(height); // Start the panel off-screen
+    const translateY = useSharedValue(height); // Controls panel sliding animation
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
     }));
 
-    // Assign roles and generate code when a player connects
+    // Handle player joining and role assignment
     useEffect(() => {
         console.log('Waiting for player to join...');
+        socket.emit('join-game', { name: 'Player1' }); // Emit player joining event
 
+        // Handle player joined event
         socket.on('player-joined', (newPlayer) => {
             console.log('New Player Joined:', newPlayer);
             Alert.alert('New Player', `${newPlayer.name} joined!`);
 
-            setPlayers((prevPlayers) => {
-                const updatedPlayers = [...prevPlayers, newPlayer];
-                console.log('Updated Players:', updatedPlayers);
+            setPlayers((prevPlayers) => [...prevPlayers, newPlayer]);
 
-                // Assign the role based on the number of players
-                const newRole = updatedPlayers.length === 1 ? 'Hider' : 'Hunter';
-                console.log(`Assigned Role: ${newRole}`);
-
-                setRole(newRole); // Update the role state
-
-                // Generate a code for the Hider
-                if (newRole === 'Hider') {
-                    const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
-                    setCode(generatedCode); // Store the generated code
-                    socket.emit('set-code', generatedCode); // Send code to backend
-                    Alert.alert('Your Code', `Share this code with the Hunters: ${generatedCode}`);
-                }
-
-                return updatedPlayers; // Return the updated players array
-            });
+            // Assign role based on the Hider status
+            if (newPlayer.isHider) {
+                setRole('Hider');
+                socket.on('code-assigned', (assignedCode) => {
+                    console.log('Received code:', assignedCode);
+                    setCode(assignedCode);
+                    Alert.alert('Your Code', `Share this code with Hunters: ${assignedCode}`);
+                });
+            } else {
+                setRole('Hunter');
+            }
         });
 
-        // Cleanup to prevent multiple event listeners
+        // Handle joinable event (5 minutes before the game starts)
+        socket.on('joinable', (data) => {
+            Alert.alert('Game Available', data.message);
+            setCanJoinGame(true); // Show "Join Game" button
+
+            // Start countdown timer for the remaining time before the game starts
+            const eventTime = new Date(data.event.startTime).getTime();
+            const now = new Date().getTime();
+            const timeRemaining = (eventTime - now) / 1000; // In seconds
+
+            // Update the countdown every second
+            const timer = setInterval(() => {
+                setCountdown((prevCountdown) => {
+                    if (prevCountdown <= 0) {
+                        clearInterval(timer);
+                        return 0;
+                    }
+                    return prevCountdown - 1;
+                });
+            }, 1000);
+            setCountdown(timeRemaining); // Set initial countdown value
+        });
+
+        // Handle correct code submission
+        socket.on('code-correct', ({ playerName, points }) => {
+            Alert.alert('Correct Code!', `${playerName} earned ${points} points!`);
+            setPoints((prevPoints) => prevPoints + points);
+        });
+
+        // Handle incorrect code submission
+        socket.on('code-incorrect', ({ playerName }) => {
+            Alert.alert('Incorrect Code', `${playerName} entered the wrong code.`);
+        });
+
         return () => {
-            console.log('Cleaning up socket listeners...');
             socket.off('player-joined');
+            socket.off('code-assigned');
+            socket.off('code-correct');
+            socket.off('code-incorrect');
+            socket.off('joinable');
         };
     }, []);
 
+    // Handle panel sliding gestures
     const handleGesture = (event) => {
-        const newY = event.nativeEvent.translationY + translateY.value;
-        translateY.value = Math.min(newY, height); // Ensure it doesn’t go above the screen
+        translateY.value = Math.min(event.nativeEvent.translationY + translateY.value, height);
     };
 
     const handleGestureEnd = () => {
-        if (translateY.value > height / 2) {
-            translateY.value = withSpring(height); // Snap back down
-        } else {
-            translateY.value = withSpring(height / 2); // Snap to halfway
-        }
+        translateY.value = withSpring(translateY.value > height / 2 ? height : height / 2);
     };
 
-    // Submit the input code and synchronize with the backend
+    // Handle code submission
     const handleCodeSubmit = () => {
+        if (inputCode.trim() === '') {
+            Alert.alert('Error', 'Please enter a valid code!'); // Prevent empty submissions
+            return;
+        }
+
         socket.emit('submit-code', { playerName: 'Hunter1', submittedCode: inputCode });
         setInputCode(''); // Clear the input field
     };
 
+    // Handle join game button press
+    const handleJoinGame = () => {
+        Alert.alert('You joined the game!');
+        navigation.navigate('BountyHunter'); // Navigate to the game screen
+    };
+
     return (
         <View style={styles.container}>
-            {/* Map View */}
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: -36.853500246993384,
-                    longitude: 174.766484575191,
+                    latitude: -36.8535,
+                    longitude: 174.7664,
                     latitudeDelta: 0.0022,
                     longitudeDelta: 0.0021,
                 }}
             >
                 <Marker
-                    coordinate={{ latitude: -36.853500246993384, longitude: 174.766484575191 }}
+                    coordinate={{ latitude: -36.8535, longitude: 174.7664 }}
                     title="My Location"
                     description="This is where the action happens!"
                 />
             </MapView>
+
+            {/* Show Join Game button 5 minutes before the game starts */}
+            {canJoinGame && (
+                <View style={styles.joinContainer}>
+                    <Text style={styles.countdownText}>
+                        Time left to join: {Math.floor(countdown / 60)}m {Math.floor(countdown % 60)}s
+                    </Text>
+                    <TouchableOpacity style={styles.joinButton} onPress={handleJoinGame}>
+                        <Text style={styles.joinButtonText}>Join Game</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {/* Open Panel Button */}
             <TouchableOpacity
@@ -128,28 +179,18 @@ export default function BountyHunter2({ navigation }) {
                 <Text style={styles.openPanelText}>Open Panel</Text>
             </TouchableOpacity>
 
-            {/* Custom Sliding Panel */}
+            {/* Sliding Panel */}
             <PanGestureHandler onGestureEvent={handleGesture} onEnded={handleGestureEnd}>
                 <Animated.View style={[styles.panel, animatedStyle]}>
                     <View style={styles.panelContent}>
                         <Text style={styles.panelTitle}>{`Role: ${role || 'Assigning...'}`}</Text>
 
-                        {/* Task Description */}
                         {role === 'Hider' ? (
                             <Text style={styles.panelDescription}>
-                                Hide! Try not to let anyone find you within the play area.
-                                {'\n\n'}
-                                Here is your 4-digit code for the Hunters if you are found:
+                                Hide and avoid being found! Your code:
                                 <Text style={styles.codeText}> {code}</Text>
                             </Text>
                         ) : (
-                            <Text style={styles.panelDescription}>
-                                Your task: Find the Hider and enter the code to win!
-                            </Text>
-                        )}
-
-                        {/* Hunter's Code Input */}
-                        {role === 'Hunter' && (
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     style={styles.input}
@@ -157,12 +198,10 @@ export default function BountyHunter2({ navigation }) {
                                     value={inputCode}
                                     onChangeText={setInputCode}
                                     keyboardType="number-pad"
-                                    maxLength={4}
                                 />
                                 <TouchableOpacity style={styles.submitButton} onPress={handleCodeSubmit}>
                                     <Text style={styles.buttonText}>Submit</Text>
                                 </TouchableOpacity>
-                                <Text style={styles.pointsText}>Points: {points}</Text>
                             </View>
                         )}
                     </View>
@@ -196,32 +235,48 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
         padding: 20,
     },
-    panelContent: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    panelTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-    panelDescription: { fontSize: 18, color: '#333', textAlign: 'center' },
+    panelContent: { alignItems: 'center' },
+    panelTitle: { fontSize: 24, fontWeight: 'bold' },
+    panelDescription: { fontSize: 18 },
     codeText: { fontWeight: 'bold', color: '#fc6a26' },
-    inputContainer: {
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+    inputContainer: { marginTop: 20, flexDirection: 'row', alignItems: 'center' },
     input: {
         borderBottomWidth: 1,
         borderColor: '#ccc',
-        marginRight: 10,
-        padding: 5,
-        width: 100,
+        marginRight: 20,
+        padding: 10,
+        width: 150,
         textAlign: 'center',
     },
     submitButton: {
         backgroundColor: '#fc6a26',
-        padding: 10,
-        borderRadius: 5,
+        padding: 15,
+        borderRadius: 20,
     },
-    buttonText: { color: '#fff' },
+    buttonText: { color: '#fff', fontSize: 20 },
     pointsText: { marginTop: 10, fontSize: 16, fontWeight: 'bold' },
+    joinContainer: {
+        position: 'absolute',
+        bottom: 100,
+        left: '50%',
+        transform: [{ translateX: -75 }],
+        alignItems: 'center',
+    },
+    countdownText: {
+        color: '#000',
+        fontSize: 18,
+        marginBottom: 10,
+    },
+    joinButton: {
+        backgroundColor: '#28a745',
+        padding: 10,
+        borderRadius: 10,
+        width: 150,
+        alignItems: 'center',
+    },
+    joinButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
