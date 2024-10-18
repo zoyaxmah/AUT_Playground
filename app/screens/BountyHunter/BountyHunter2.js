@@ -14,7 +14,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { io } from 'socket.io-client';
 
 const { height } = Dimensions.get('window');
-const socket = io('http://192.168.1.65:3000'); // Use your machine's local IP address
+const socket = io('http://172.29.46.86:3000'); // Use your machine's local IP address
 
 /**
  * BountyHunter2 is a React Native component that provides a MapView with a sliding

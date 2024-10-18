@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { io } from 'socket.io-client';
 
 const { height } = Dimensions.get('window');
-const socket = io('http://192.168.1.65:3000'); // Use your machine's local IP address
+const socket = io('http://172.29.46.86:3000'); // Use your machine's local IP address
 
 export default function BountyHunter() {
     const [timeLeft, setTimeLeft] = useState(0);

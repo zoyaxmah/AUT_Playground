@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
-import { View, 
+import { 
+    View, 
     StyleSheet, 
     TextInput, 
-    Button,
+    Button, 
     Image, 
     Text, 
     Alert 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword 
+} from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { auth } from '../../firebaseConfig.js'; // Importing Firebase auth
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
-    // Function to save data to AsyncStorage
-    const storeCredentials = async (email, password) => {
-        try {
-            await AsyncStorage.setItem('userEmail', email);
-            await AsyncStorage.setItem('userPassword', password);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to save credentials.');
-        }
-    };
 
     const handleSignUp = async () => {
         if (!email || !password || !confirmPassword) {
@@ -34,13 +30,24 @@ function SignUpScreen({ navigation }) {
         } else if (password !== confirmPassword) {
             Alert.alert('Error', 'Passwords do not match!');
         } else {
-            // Save the credentials locally using AsyncStorage
-            await storeCredentials(email, password);
-            console.log('Account created successfully!');
-            // After successful sign-up, navigate back to the login page
-            navigation.navigate('Welcome');  
+            try {
+                // Create a new user with Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Store the email locally in AsyncStorage
+                await AsyncStorage.setItem('user_email', email);
+
+                console.log('Account created successfully!');
+                Alert.alert('Success', 'Account created successfully!');
+
+                // Navigate to the Welcome screen
+                navigation.navigate('Welcome');
+            } catch (error) {
+                Alert.alert('Error', error.message);
+                console.error('Sign-up error:', error.message);
+            }
         }
-        
     };
 
     return (

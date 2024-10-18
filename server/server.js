@@ -86,5 +86,5 @@ io.on('connection', (socket) => {
 
 // Start the server
 server.listen(PORT, () => {
-    console.log(`Server running on http://192.168.1.65:${PORT}`); // Use your IP address here
+    console.log(`Server running on http://172.29.46.86:${PORT}`); // Use your IP address here
 });

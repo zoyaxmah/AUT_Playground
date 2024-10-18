@@ -13,7 +13,9 @@
       "useNextNotificationsApi": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "iosDisplayInForeground": true,
+      "androidMode": "default"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,6 +25,9 @@
     },
     "web": {
       "favicon": ".assets/icon.png"
-    }
+    },
+    "plugins": [
+      
+    ]
   }
 }

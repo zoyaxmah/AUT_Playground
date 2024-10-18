@@ -1,76 +1,68 @@
-import React, {useState} from 'react';
-import { View, 
+import React, { useState, useEffect } from 'react';
+import {
+    View,
     StyleSheet,
-    TouchableOpacity, 
+    TouchableOpacity,
     Text,
     TextInput,
     Image,
     Button,
+    Alert
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Firebase auth function
+import { auth } from '../../firebaseConfig.js'; // Firebase auth instance
 
 function WelcomeScreen({ navigation }) {
+    // State variables to manage user inputs, errors, and stored Gamer ID
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState(''); 
+    const [errorMessage, setErrorMessage] = useState('');
 
-    // Function to get stored credentials
-    const getStoredCredentials = async () => {
-        try {
-            const storedEmail = await AsyncStorage.getItem('userEmail');
-            const storedPassword = await AsyncStorage.getItem('userPassword');
-            return { storedEmail, storedPassword };
-        } catch (error) {
-            setErrorMessage('Error retrieving stored credentials.');
-        }
-        return null;
-    };
-
+    // Function to handle user login
     const handleLogin = async () => {
-        // Clear any previous error message
+        // Reset error message at the start
         setErrorMessage('');
 
-        // Check if both fields are filled
+        // Validate if both username and password are entered
         if (!username || !password) {
             setErrorMessage('Please enter both email and password.');
             return;
         }
-        console.log("Login button pressed");
-        const credentials = await getStoredCredentials();
 
-        if (!credentials) {
-            setErrorMessage('No stored credentials found.');
-            return;
-        }
-
-        const { storedEmail, storedPassword } = credentials;
-        console.log("Entered Password:", password);
-
-        if (username === storedEmail && password === storedPassword) {
+        try {
+            // Firebase Authentication with email and password
+            await signInWithEmailAndPassword(auth, username, password);
             console.log('Logged in successfully!');
+
+
+            // Navigate to the main app (Tab Navigation) on successful login
             navigation.navigate('TabNavigate');
-        } else {
+        } catch (error) {
+            // Set error message for invalid login
             setErrorMessage('Invalid email or password.');
+            console.error('Login error:', error.message);
         }
-        
     };
 
     return (
-        
         <View style={styles.background}>
+            {/* App Logo */}
             <Image
                 source={require('../../assets/PlaygroundLogo.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />
+
+            {/* User Input Fields */}
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Username"
+                    placeholder="Email"
                     value={username}
                     onChangeText={text => setUsername(text)}
+                    keyboardType="email-address"
                 />
-                <TextInput  
+                <TextInput
                     style={styles.input}
                     placeholder="Password"
                     secureTextEntry={true}
@@ -79,15 +71,18 @@ function WelcomeScreen({ navigation }) {
                 />
             </View>
 
+            {/* Error Message Display */}
             {errorMessage ? (
-                    <Text style={styles.errorText}>{errorMessage}</Text>
-                ) : null}
+                <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : null}
 
-            <Button 
-                style={styles.loginButton}
+            {/* Login Button */}
+            <Button
                 title="Login"
                 onPress={handleLogin}
             />
+
+            {/* Signup Link */}
             <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>
                     Don't have an account?{' '}
@@ -96,31 +91,17 @@ function WelcomeScreen({ navigation }) {
                     </TouchableOpacity>
                 </Text>
             </View>
-        </View>   
+        </View>
     );
 }
 
+// Styles for the Welcome Screen components
 const styles = StyleSheet.create({
-    background:{
+    background: {
         flex: 1,
         backgroundColor: "#fc6a26",
-        justifyContent:'center',
+        justifyContent: 'center',
         alignItems: 'center',
-    },
-    loginButton: {
-        width: 110,
-        height: 40,
-        backgroundColor: "#ffd13b",
-        position: "absolute",
-        bottom: "30%",
-        borderRadius:5,
-        justifyContent:'center',
-        alignItems:'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
     inputContainer: {
         width: 250,
@@ -141,12 +122,6 @@ const styles = StyleSheet.create({
         height: 80,
         marginBottom: 20,
     },
-    loginButton: {
-        height: 20,
-        width: 100,
-        backgroundColor: 'orange',
-    
-    },
     signupContainer: {
         marginTop: 20,
         alignItems: 'center',
@@ -160,9 +135,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     errorText: {
-        color: 'red',  // Set the color for error messages
+        color: 'red',
         marginBottom: 10,
-    }
+    },
 });
 
 export default WelcomeScreen;
