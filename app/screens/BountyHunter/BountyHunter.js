@@ -14,6 +14,8 @@ export default function BountyHunter({ route }) {
     const [hasNotifiedOneMinute, setHasNotifiedOneMinute] = useState(false); // Track 1-minute notification
     const navigation = useNavigation();
 
+    const { playerName, gameName } = route.params; // Retrieve gameName and playerName from route params
+
     useEffect(() => {
         // Ensure joinEndTime is passed through route params
         if (route.params && route.params.joinEndTime) {
@@ -33,7 +35,8 @@ export default function BountyHunter({ route }) {
 
             if (timeDiff <= 0) {
                 clearInterval(interval);
-                navigation.replace('BountyHunter2', { gameName: 'Bounty Hunter' }); // Navigate with gameName
+                // Pass both gameName and playerName when navigating to BountyHunter2
+                navigation.replace('BountyHunter2', { gameName: gameName, playerName: playerName });
             } else {
                 setTimeLeft(Math.ceil(timeDiff / 1000)); // Update the countdown in seconds
 

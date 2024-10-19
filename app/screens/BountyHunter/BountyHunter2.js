@@ -6,37 +6,28 @@ import { BASE_URL } from '../../config/config'; // Use centralized config
 const socket = io(BASE_URL);
 
 export default function BountyHunter2({ route, navigation }) {
-    // Add a fallback for when gameName is not passed correctly
+    // Add a fallback for when gameName and playerName are not passed correctly
     const gameName = route?.params?.gameName;
+    const playerName = route?.params?.playerName; // Get player name from the route params
 
     // State variables
     const [role, setRole] = useState(''); // Player's role: Hider or Hunter
-    const [code, setCode] = useState(''); // Hider's generated code
+    const [code, setCode] = useState(''); // Hider's generated code (received from the server)
     const [inputCode, setInputCode] = useState(''); // Hunter's entered code
     const [players, setPlayers] = useState([]); // List of connected players
     const [points, setPoints] = useState(0); // Hunter's points
-    const [playerName, setPlayerName] = useState(''); // Player's name
-
-    // Function to assign a random 4-digit code to the Hider
-    const generateRandomCode = () => {
-        return Math.floor(1000 + Math.random() * 9000).toString(); // Generates a 4-digit code
-    };
 
     useEffect(() => {
-        if (!gameName) {
-            console.error('gameName is undefined! Returning to previous screen.');
-            Alert.alert('Error', 'Game name is missing. Returning to the main screen.');
-            navigation.goBack(); // Return to the previous screen if gameName is missing
+        if (!gameName || !playerName) {
+            console.error('gameName or playerName is undefined! Returning to previous screen.');
+            Alert.alert('Error', 'Game name or player name is missing. Returning to the main screen.');
+            navigation.goBack(); // Return to the previous screen if gameName or playerName is missing
             return;
         }
 
-        // Set a default name for demonstration, replace this with actual player name fetching logic
-        const randomPlayerName = 'Player_' + Math.floor(Math.random() * 1000);
-        setPlayerName(randomPlayerName); // This only sets the player name once
-
         // Emit player joining event with player name and gameName
-        console.log('Emitting join-game event for player:', randomPlayerName, 'with gameName:', gameName);
-        socket.emit('join-game', { gameName, name: randomPlayerName });
+        console.log('Emitting join-game event for player:', playerName, 'with gameName:', gameName);
+        socket.emit('join-game', { gameName, name: playerName });
 
         // Listen for player joined event and role assignment
         socket.on('player-joined', (newPlayer) => {
@@ -54,21 +45,24 @@ export default function BountyHunter2({ route, navigation }) {
             if (newPlayer.isHider) {
                 console.log('Player is the Hider');
                 setRole('Hider');
-                const generatedCode = generateRandomCode(); // Generate code for Hider
-                setCode(generatedCode);
-                socket.emit('assign-code', { playerName: newPlayer.name, code: generatedCode }); // Emit the assigned code for the Hider
-                Alert.alert('Your Code', `Share this code with Hunters: ${generatedCode}`);
             } else {
                 console.log('Player is a Hunter');
                 setRole('Hunter');
             }
         });
 
+        // Listen for the assigned code for the Hider
+        socket.on('code-assigned', ({ code }) => {
+            console.log('Code assigned by server:', code);
+            setCode(code);  // Update the state with the code received from the server
+        });
+
         // Cleanup event listeners on unmount
         return () => {
             socket.off('player-joined');
+            socket.off('code-assigned');
         };
-    }, [gameName]); // Ensure this runs only once when component mounts
+    }, [gameName, playerName]);
 
     // Handle code submission by Hunter
     const handleCodeSubmit = () => {

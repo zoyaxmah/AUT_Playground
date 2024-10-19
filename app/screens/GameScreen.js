@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'rea
 import MapView, { Marker } from 'react-native-maps';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { io } from 'socket.io-client';
 import { BASE_URL } from '../config/config'; // Use centralized config
 
@@ -59,11 +60,9 @@ export default function GameScreen({ navigation }) {
         });
 
         // Listen for events being marked as unavailable
-        socket.on('event-unavailable', (gameId) => {
-            if (eventDetails && eventDetails.id === gameId) {
-                console.log(`Game removed from available list: ${eventDetails.name}`);
-                setIsGameAvailable(false); // Mark as unavailable
-            }
+        socket.on('event-unavailable', () => {
+            console.log(`Game removed from available list`);
+            setIsGameAvailable(false); // Mark as unavailable
         });
 
         return () => {
@@ -85,14 +84,23 @@ export default function GameScreen({ navigation }) {
         }
     };
 
-    const handleJoinGame = () => {
-        if (eventDetails && eventDetails.startTime) {
-            const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 5 * 60 * 1000).getTime(); // Pass timestamp
-            navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name }); // Pass the gameName along with the joinEndTime
-        } else {
-            Alert.alert('Error', 'No event available');
-        }
+    const handleJoinGame = async () => {
+        // Retrieve the player's name from AsyncStorage
+        try {
+            const storedName = await AsyncStorage.getItem('user_name');
+            const playerName = storedName || 'Anonymous'; // Default to 'Anonymous' if no name is found
 
+            if (eventDetails && eventDetails.name && eventDetails.startTime) { // Ensure gameName and startTime are valid
+                const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 5 * 60 * 1000).getTime(); // Pass timestamp
+                navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name, playerName }); // Navigate to BountyHunter first
+            } else {
+                Alert.alert('Error', 'No event available');
+                console.error('Missing eventDetails or game name');
+            }
+        } catch (error) {
+            console.error('Error retrieving player name or navigating:', error);
+            Alert.alert('Error', 'Unable to retrieve player name or navigate to game.');
+        }
     };
 
     return (
