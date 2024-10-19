@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'; // Import React hooks
-import { 
-    View, 
-    Text, 
-    Alert, 
-    TouchableOpacity, 
-    TextInput, 
-    Button, 
-    StyleSheet 
+import {
+    View,
+    Text,
+    Alert,
+    TouchableOpacity,
+    TextInput,
+    Button,
+    StyleSheet
 } from 'react-native'; // Import React Native components
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage for local storage
 import { getAuth } from 'firebase/auth'; // Import Firebase Auth
@@ -92,8 +92,8 @@ const ProfileScreen = () => {
                 <>
                     <Text style={styles.label}>Name: {name || 'N/A'}</Text>
                     <Text style={styles.label}>Bio: {bio || 'N/A'}</Text>
-                    <TouchableOpacity 
-                        style={styles.editButton} 
+                    <TouchableOpacity
+                        style={styles.editButton}
                         onPress={() => setIsEditing(true)}
                     >
                         <Text style={styles.editButtonText}>Edit Profile</Text>

@@ -3,27 +3,25 @@ const http = require('http');
 const { Server } = require('socket.io');
 const moment = require('moment-timezone');
 const gameHandler = require('./gameHandler');
-const cors = require('cors'); // Import CORS
-
-require('dotenv').config(); // Load environment variables
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*', // Allow all origins for testing
+        origin: '*',
         methods: ['GET', 'POST'],
     },
 });
 
 const PORT = process.env.PORT || 3000;
-let games = []; // Store all active games
+let games = [];
+let activeGames = []; // Track active games that are in progress
 
-// Enable CORS globally for all HTTP routes
-app.use(cors()); // Add CORS middleware for HTTP requests
-app.use(express.json()); // Middleware to parse JSON requests
+app.use(cors());
+app.use(express.json());
 
-// Endpoint to create a new game event
+// Create a new event (game)
 app.post('/create-event', (req, res) => {
     try {
         const { name, description, startTime } = req.body;
@@ -37,23 +35,36 @@ app.post('/create-event', (req, res) => {
             name,
             description,
             startTime: moment.tz(startTime, 'Pacific/Auckland').toISOString(),
+            players: []  // Initialize an empty players array for this game
         };
 
         games.push(game);
-        console.log(`New game scheduled: ${game.name} at ${game.startTime}`);
+
+        console.log(`New game scheduled: ${game.name} at ${game.startTime} with name: ${game.name}`);
 
         const eventTime = moment.tz(game.startTime, 'Pacific/Auckland');
         const currentTime = moment.tz('Pacific/Auckland');
-
         const delay = eventTime.diff(currentTime, 'seconds');
 
+        // Schedule when the game becomes available
         if (delay > 0) {
-            console.log(`Game will emit in: ${delay} seconds`);
             setTimeout(() => {
                 io.emit('event-available', game);
+                activeGames.push(game); // Add game to active games when it becomes available
+                console.log(`Game available: ${game.name}`);
             }, delay * 1000);
+
+            // Schedule removal from available list after 5 minutes
+            setTimeout(() => {
+                // Emit game-unavailable event but don't fully remove from activeGames for ongoing users
+                io.emit('event-unavailable', game.name);
+                games = games.filter(g => g.name !== game.name); // Remove from available games list only
+                console.log(`Game removed from available list: ${game.name}`);
+            }, (delay + 5 * 60) * 1000);
         } else {
             io.emit('event-available', game);
+            activeGames.push(game); // Add to active games immediately if available
+            console.log(`Game available immediately: ${game.name}`);
         }
 
         res.status(201).json(game);
@@ -63,28 +74,36 @@ app.post('/create-event', (req, res) => {
     }
 });
 
-// Endpoint to get the latest event details
+// Fetch the latest available game
 app.get('/event', (req, res) => {
     if (games.length === 0) {
+        console.log('No available game found');
         return res.status(404).json({ error: 'No event found' });
     }
-
-    // Respond with the latest game event in JSON format
-    res.json(games[games.length - 1]);
+    const latestGame = games[games.length - 1];
+    console.log(`Fetched latest joinable event: ${latestGame.name}`);
+    res.json(latestGame);
 });
 
-// WebSocket connection handling
+// Endpoint to fetch active games for players who joined
+app.get('/active-games', (req, res) => {
+    if (activeGames.length === 0) {
+        console.log('No active game found');
+        return res.status(404).json({ error: 'No active game found' });
+    }
+    console.log(`Fetched active games: ${activeGames.length} game(s) active`);
+    res.json(activeGames);
+});
+
 io.on('connection', (socket) => {
     console.log('A player connected:', socket.id);
-    gameHandler(io, socket, games); // Use gameHandler for game management
+    gameHandler(io, socket, activeGames); // Pass active games to game handler
 
-    // Handle player disconnect
     socket.on('disconnect', () => {
         console.log('A player disconnected:', socket.id);
     });
 });
 
-// Start the server
 server.listen(PORT, () => {
-    console.log(`Server running on http://172.29.46.86:${PORT}`); // Use your IP address here
+    console.log(`Server running on http://192.168.1.65:${PORT}`);
 });

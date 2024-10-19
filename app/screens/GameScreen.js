@@ -1,50 +1,98 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { io } from 'socket.io-client';
+import { BASE_URL } from '../config/config'; // Use centralized config
 
 const { height } = Dimensions.get('window');
-const socket = io('http://172.29.46.86:3000'); // Use your machine's local IP address
+const socket = io(BASE_URL);
 
-const GameScreen = ({ navigation }) => {
+export default function GameScreen({ navigation }) {
     const [isGameAvailable, setIsGameAvailable] = useState(false);
     const [eventDetails, setEventDetails] = useState(null);
-    const translateY = useSharedValue(height); // Start panel off-screen
+    const translateY = useSharedValue(height);  // Start the sliding panel off-screen
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
     }));
 
     useEffect(() => {
-        // Listen for event availability
-        socket.on('event-available', (event) => {
-            console.log('Event received:', event);
-            setEventDetails(event);
-            setIsGameAvailable(true); // Show the game when available
-        });
+        // Fetch the event details from the backend
+        const fetchEvent = async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/event`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch event details');
+                }
+                const eventData = await response.json();
+
+                // Check if the event is still joinable
+                if (eventData.isActive) {
+                    setEventDetails(eventData);
+                    setIsGameAvailable(true);  // Game is now available
+                    console.log(`Fetched latest joinable event: ${eventData.name}`);
+                } else {
+                    setIsGameAvailable(false);
+                    console.log('No available game found');
+                }
+            } catch (error) {
+                Alert.alert('Error', 'Unable to fetch event.');
+                console.error('Error fetching event:', error);
+            }
+        };
+
+        fetchEvent(); // Fetch event on mount
 
         return () => {
-            socket.off('event-available'); // Cleanup on unmount
+            socket.off('event-available');
         };
     }, []);
 
+    useEffect(() => {
+        // Listen for new events being available
+        socket.on('event-available', (game) => {
+            setEventDetails(game);
+            setIsGameAvailable(true);
+            console.log(`Game available: ${game.name}`);
+        });
+
+        // Listen for events being marked as unavailable
+        socket.on('event-unavailable', (gameId) => {
+            if (eventDetails && eventDetails.id === gameId) {
+                console.log(`Game removed from available list: ${eventDetails.name}`);
+                setIsGameAvailable(false); // Mark as unavailable
+            }
+        });
+
+        return () => {
+            socket.off('event-available');
+            socket.off('event-unavailable');
+        };
+    }, [eventDetails]);
+
     const handleGesture = (event) => {
         const newY = event.nativeEvent.translationY + translateY.value;
-        translateY.value = Math.min(newY, height); // Ensure it doesn’t go above the screen
+        translateY.value = Math.min(newY, height);  // Ensure it doesn't go above the screen
     };
 
     const handleGestureEnd = () => {
         if (translateY.value > height / 2) {
-            translateY.value = withSpring(height); // Snap back down
+            translateY.value = withSpring(height);  // Snap back down
         } else {
-            translateY.value = withSpring(height / 2); // Snap to halfway
+            translateY.value = withSpring(height / 2);  // Snap to halfway
         }
     };
 
     const handleJoinGame = () => {
-        navigation.navigate('BountyHunter', { eventDetails });
+        if (eventDetails && eventDetails.startTime) {
+            const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 5 * 60 * 1000).getTime(); // Pass timestamp
+            navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name }); // Pass the gameName along with the joinEndTime
+        } else {
+            Alert.alert('Error', 'No event available');
+        }
+
     };
 
     return (
@@ -62,7 +110,7 @@ const GameScreen = ({ navigation }) => {
                 <Marker
                     coordinate={{ latitude: -36.853500246993384, longitude: 174.766484575191 }}
                     title="My Location"
-                    description="Here is where the action happens!"
+                    description="This is where the action happens!"
                 />
             </MapView>
 
@@ -74,7 +122,7 @@ const GameScreen = ({ navigation }) => {
                 <Text style={styles.openPanelText}>Open Game Panel</Text>
             </TouchableOpacity>
 
-            {/* Custom Sliding Panel */}
+            {/* Sliding Panel for Game Details */}
             <PanGestureHandler onGestureEvent={handleGesture} onEnded={handleGestureEnd}>
                 <Animated.View style={[styles.panel, animatedStyle]}>
                     <View style={styles.panelContent}>
@@ -88,7 +136,7 @@ const GameScreen = ({ navigation }) => {
                                     </Text>
                                     <TouchableOpacity
                                         style={styles.button}
-                                        onPress={handleJoinGame} // Join game
+                                        onPress={handleJoinGame}  // Join game
                                     >
                                         <Text style={styles.buttonText}>Join Game</Text>
                                     </TouchableOpacity>
@@ -104,7 +152,7 @@ const GameScreen = ({ navigation }) => {
             </PanGestureHandler>
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
@@ -154,9 +202,6 @@ const styles = StyleSheet.create({
 
         elevation: 5,
         position: 'absolute',
-
     },
     buttonText: { color: '#fff', fontSize: 16 },
 });
-
-export default GameScreen;

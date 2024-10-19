@@ -1,16 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications'; // Import notifications
 import { io } from 'socket.io-client';
+import { BASE_URL } from '../../config/config'; // Use centralized config
 
-const { height } = Dimensions.get('window');
-const socket = io('http://172.29.46.86:3000'); // Use your machine's local IP address
+const socket = io(BASE_URL);
 
-export default function BountyHunter() {
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [showSplash, setShowSplash] = useState(true);
-    const [eventTime, setEventTime] = useState(null); // State to store fetched event time
+export default function BountyHunter({ route }) {
+    const [timeLeft, setTimeLeft] = useState(300); // Default to 5 minutes (300 seconds)
+    const [joinEndTime, setJoinEndTime] = useState(null);
+    const [hasNotifiedTwoMinutes, setHasNotifiedTwoMinutes] = useState(false); // Track 2-minute notification
+    const [hasNotifiedOneMinute, setHasNotifiedOneMinute] = useState(false); // Track 1-minute notification
     const navigation = useNavigation();
+
+    useEffect(() => {
+        // Ensure joinEndTime is passed through route params
+        if (route.params && route.params.joinEndTime) {
+            const endTime = new Date(route.params.joinEndTime).getTime();
+            setJoinEndTime(endTime);
+        } else {
+            Alert.alert('Error', 'Join end time not found. Please try again.');
+        }
+    }, [route.params]);
+
+    useEffect(() => {
+        if (!joinEndTime) return; // Wait until joinEndTime is set
+
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const timeDiff = joinEndTime - now;
+
+            if (timeDiff <= 0) {
+                clearInterval(interval);
+                navigation.replace('BountyHunter2', { gameName: 'Bounty Hunter' }); // Navigate with gameName
+            } else {
+                setTimeLeft(Math.ceil(timeDiff / 1000)); // Update the countdown in seconds
+
+                // Trigger notifications based on countdown
+                if (timeLeft <= 120 && !hasNotifiedTwoMinutes) {
+                    sendNotification('Join Game Now!', '2 minutes left to join the game!');
+                    setHasNotifiedTwoMinutes(true); // Mark 2-minute notification as sent
+                }
+
+                if (timeLeft <= 60 && !hasNotifiedOneMinute) {
+                    sendNotification('Join Game Now!', '1 minute left to join the game!');
+                    setHasNotifiedOneMinute(true); // Mark 1-minute notification as sent
+                }
+            }
+        }, 1000);
+
+        return () => clearInterval(interval); // Cleanup the interval on unmount
+    }, [joinEndTime, timeLeft]);
 
     // Helper function to format time in mm:ss
     const formatTime = (seconds) => {
@@ -19,94 +60,35 @@ export default function BountyHunter() {
         return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
     };
 
-    // Fetch the event time from the backend
-    const fetchEventTime = async () => {
-        try {
-            const response = await fetch('http://192.168.1.65:3000/event'); // Use correct IP
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch event details');
-            }
-
-            const eventData = await response.json();
-
-            if (eventData && eventData.startTime) {
-                const fetchedEventTime = new Date(eventData.startTime).getTime();
-                setEventTime(fetchedEventTime); // Set event time
-            } else {
-                throw new Error('Invalid event data');
-            }
-        } catch (error) {
-            Alert.alert('Error', 'Unable to fetch event details.');
-            console.error('Error fetching event:', error);
-        }
+    // Function to trigger notification
+    const sendNotification = async (title, body) => {
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title,
+                body,
+                data: { screen: 'Home' }, // Customize based on your app navigation
+            },
+            trigger: null, // Trigger immediately
+        });
     };
 
-
-    useEffect(() => {
-        fetchEventTime(); // Fetch event time on component mount
-    }, []);
-
-    useEffect(() => {
-        if (!eventTime) return; // Only run if eventTime is set
-
-        const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const timeDiff = eventTime - now;
-
-            if (timeDiff <= 0) {
-                clearInterval(interval);
-                setShowSplash(false);
-                navigation.replace('BountyHunter2', { eventTime }); // Navigate directly to BountyHunter2
-            } else {
-                setTimeLeft(Math.ceil(timeDiff / 1000)); // Update countdown every second
-            }
-        }, 1000);
-
-        return () => clearInterval(interval); // Cleanup interval on unmount
-    }, [eventTime]); // Depend on eventTime to start the countdown
-
-    if (!eventTime) {
-        // If eventTime hasn't been fetched yet, show a loading indicator
+    if (!joinEndTime) {
+        // If joinEndTime hasn't been set, show a loading indicator
         return (
-            <View style={styles.splashContainer}>
-                <Text style={styles.countdownText}>Loading event...</Text>
+            <View style={styles.container}>
+                <Text style={styles.countdownText}>Loading...</Text>
             </View>
         );
     }
 
-    if (showSplash) {
-        return (
-            <View style={styles.splashContainer}>
-                <Text style={styles.countdownText}>
-                    Game starts in: {formatTime(timeLeft)}
-                </Text>
-                <Text style={styles.instructions}>
-                    Find the Hider and scan their QR code to win!
-                </Text>
-            </View>
-        );
-    }
-
-    return null; // No content after splash; navigates to BountyHunter2
+    return (
+        <View style={styles.container}>
+            <Text style={styles.countdownText}>Game starts in: {formatTime(timeLeft)}</Text>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-    splashContainer: {
-        flex: 1,
-        backgroundColor: '#fc6a26',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    countdownText: {
-        fontSize: 48,
-        color: '#fff',
-        marginBottom: 20,
-    },
-    instructions: {
-        fontSize: 18,
-        color: '#fff',
-        textAlign: 'center',
-        marginHorizontal: 20,
-    },
+    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fc6a26' },
+    countdownText: { fontSize: 48, color: '#fff' },
 });
