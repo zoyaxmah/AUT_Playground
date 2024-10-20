@@ -92,6 +92,6 @@ export default function BountyHunter({ route }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fc6a26' },
-    countdownText: { fontSize: 48, color: '#fff' },
+    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fc6a26', fontWeight: 'bold' },
+    countdownText: { fontSize: 35, color: '#fff', fontWeight: 'bold' },
 });

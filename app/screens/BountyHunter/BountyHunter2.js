@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { io } from 'socket.io-client';
 import { BASE_URL } from '../../config/config'; // Use centralized config
 
+const { height } = Dimensions.get('window');
 const socket = io(BASE_URL);
 
 export default function BountyHunter2({ route, navigation }) {
-    // Add a fallback for when gameName and playerName are not passed correctly
+    // Get gameName and playerName from route params
     const gameName = route?.params?.gameName;
-    const playerName = route?.params?.playerName; // Get player name from the route params
+    const playerName = route?.params?.playerName;
 
     // State variables
     const [role, setRole] = useState(''); // Player's role: Hider or Hunter
@@ -16,6 +20,36 @@ export default function BountyHunter2({ route, navigation }) {
     const [inputCode, setInputCode] = useState(''); // Hunter's entered code
     const [players, setPlayers] = useState([]); // List of connected players
     const [points, setPoints] = useState(0); // Hunter's points
+    const [timeLeft, setTimeLeft] = useState(120); // Countdown timer in seconds (2 minutes)
+
+    // For sliding panel (start off-screen initially)
+    const translateY = useSharedValue(height); // Start the sliding panel completely off-screen
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+    }));
+
+    // Countdown timer logic
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(prevTime => {
+                if (prevTime <= 1) {
+                    clearInterval(timer);
+                    navigation.replace('GameEnded'); // Navigate to the Game Ended screen
+                    return 0;
+                }
+                return prevTime - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer); // Cleanup on unmount
+    }, [navigation]);
+
+    // Function to format time in mm:ss
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    };
 
     useEffect(() => {
         if (!gameName || !playerName) {
@@ -95,86 +129,176 @@ export default function BountyHunter2({ route, navigation }) {
         };
     }, []);
 
+    // Handle gesture for sliding panel
+    const handleGesture = (event) => {
+        const newY = event.nativeEvent.translationY + translateY.value;
+        translateY.value = Math.min(newY, height); // Ensure it doesn't go above the screen
+    };
+
+    const handleGestureEnd = () => {
+        if (translateY.value > height / 2) {
+            translateY.value = withSpring(height); // Snap back down
+        } else {
+            translateY.value = withSpring(height / 2); // Snap to halfway height
+        }
+    };
+
+    // Handle the panel slide up with a button press
+    const showPanel = () => {
+        translateY.value = withSpring(height / 2); // Bring the panel up to halfway when button is pressed
+    };
+
     return (
         <View style={styles.container}>
-            <Text style={styles.roleText}>Role: {role || 'Assigning...'}</Text>
+            {/* Map View */}
+            <MapView
+                style={styles.map}
+                initialRegion={{
+                    latitude: -36.853500246993384,
+                    longitude: 174.766484575191,
+                    latitudeDelta: 0.0022,
+                    longitudeDelta: 0.0021,
+                }}
+            >
+                <Marker
+                    coordinate={{ latitude: -36.853500246993384, longitude: 174.766484575191 }}
+                    title="My Location"
+                    description="This is where the action happens!"
+                />
+            </MapView>
 
-            {role === 'Hider' ? (
-                <Text style={styles.hiderText}>
-                    You are the Hider! Share this code with the Hunters: <Text style={styles.codeText}>{code}</Text>
-                </Text>
-            ) : role === 'Hunter' ? (
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter Hider's Code"
-                        value={inputCode}
-                        onChangeText={setInputCode}
-                        keyboardType="number-pad"
-                    />
-                    <TouchableOpacity style={styles.submitButton} onPress={handleCodeSubmit}>
-                        <Text style={styles.buttonText}>Submit Code</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <Text>Waiting for role assignment...</Text>
-            )}
+            {/* Timer display */}
+            <Text style={styles.timerText}>Game Time Left: {formatTime(timeLeft)}</Text>
 
-            <Text style={styles.pointsText}>Points: {points}</Text>
+            {/* Button to slide the panel up */}
+            <TouchableOpacity style={styles.showPanelButton} onPress={showPanel}>
+                <Text style={styles.showPanelText}>Show Panel</Text>
+            </TouchableOpacity>
+
+            {/* Sliding Panel */}
+            <PanGestureHandler onGestureEvent={handleGesture} onEnded={handleGestureEnd}>
+                <Animated.View style={[styles.panel, animatedStyle]}>
+                    <View style={styles.panelContent}>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.roleText}>Role: {role || 'Assigning...'}</Text>
+
+                            {role === 'Hider' ? (
+                                <Text style={styles.hiderText}>
+                                    Try not to get caught & earn points!{'\n\n'}
+                                    Share this code with the Hunters if they find you:
+                                    {'\n\n'}
+                                    <Text style={styles.codeText}>{code}</Text>
+                                </Text>
+                            ) : role === 'Hunter' ? (
+                                <>
+                                    <Text style={styles.hunterText}>
+                                        Find the Hider and get their code to earn points.
+                                    </Text>
+                                    <View style={styles.rowContainer}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="Enter Hider's Code"
+                                            value={inputCode}
+                                            onChangeText={setInputCode}
+                                            keyboardType="number-pad"
+                                        />
+                                        <TouchableOpacity style={styles.submitButton} onPress={handleCodeSubmit}>
+                                            <Text style={styles.buttonText}>Submit Code</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            ) : (
+                                <Text>Waiting for role assignment...</Text>
+                            )}
+
+                            <Text style={styles.pointsText}>Points: {points}</Text>
+                        </View>
+                    </View>
+                </Animated.View>
+            </PanGestureHandler>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fc6a26',
-    },
-    roleText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    hiderText: {
+    container: { flex: 1 },
+    map: { ...StyleSheet.absoluteFillObject },
+    timerText: {
         fontSize: 18,
-        color: '#fff',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    codeText: {
         fontWeight: 'bold',
-        color: '#fff',
+        position: 'absolute',
+        top: 60,
+        color: 'black',
+        alignItems: 'center',
+        justifyContent: 'center',
+        left: '50%',
+        transform: [{ translateX: -90 }],
     },
-    inputContainer: {
+    showPanelButton: {
+        position: 'absolute',
+        bottom: 100,
+        left: '50%',
+        transform: [{ translateX: -75 }],
+        backgroundColor: '#fc6a26',
+        padding: 10,
+        width: 150,
+        alignItems: 'center',
+        borderRadius: 10,
+    },
+    showPanelText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    panel: {
+        position: 'absolute',
+        bottom: 0,
+        height: height,
+        width: '100%',
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+    },
+    panelContent: { justifyContent: 'center', alignItems: 'center' },
+    textContainer: { alignItems: 'center', marginRight: 10 },
+    roleText: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+    hiderText: { fontSize: 17, color: '#333', textAlign: 'center', marginBottom: 20 },
+    hunterText: { fontSize: 17, color: '#333', textAlign: 'center', marginBottom: 20 },
+    codeText: { 
+        fontWeight: 'bold', 
+        color: '#fc6a26', 
+        fontSize: 30, 
+        textAlign: 'center',
+        paddingVertical: 10,
+        backgroundColor: '#f4f4f4',
+        borderRadius: 10,
+        fontweight: 500,
+        lineheight: 1,
+    },
+    rowContainer: {
         flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
     },
     input: {
         borderBottomWidth: 1,
         borderColor: '#ccc',
-        marginRight: 20,
         padding: 10,
         width: 150,
         textAlign: 'center',
         backgroundColor: '#fff',
         borderRadius: 5,
+        marginRight: 20,
+        fontSize: 15,
     },
     submitButton: {
-        backgroundColor: '#28a745',
+        backgroundColor: '#fc6a26',
         padding: 15,
-        borderRadius: 10,
+        borderRadius: 15,
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    pointsText: {
-        marginTop: 30,
-        fontSize: 18,
-        color: '#fff',
-    },
+    buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    pointsText: { marginTop: 30, fontSize: 18, color: '#333' },
 });

@@ -8,7 +8,7 @@ import BountyHunter from '../app/screens/BountyHunter/BountyHunter';
 import BountyHunter2 from '../app/screens/BountyHunter/BountyHunter2';
 import WelcomeScreen from '../app/screens/WelcomeScreen';
 import ProfileScreen from '../app/screens/ProfileScreen.js';
-
+import GameEnded from '../app/screens/BountyHunter/GameEnded'
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -21,6 +21,7 @@ function GameStackNavigator() {
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="BountyHunter" component={BountyHunter} />
       <Stack.Screen name="BountyHunter2" component={BountyHunter2} />
+      <Stack.Screen name="GameEnded" component={GameEnded} /> 
     </Stack.Navigator>
   );
 }
@@ -35,18 +36,18 @@ export default function AppNavigator() {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="Game"
+        name="Games"
         component={GameStackNavigator}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen
-        name="Contact"
-        component={ContactScreen}
         options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Contact"
+        component={ContactScreen}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>
