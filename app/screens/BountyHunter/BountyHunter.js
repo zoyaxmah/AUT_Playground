@@ -5,10 +5,10 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BountyHunter({ route }) {
-    const [timeLeft, setTimeLeft] = useState(300); // Default to 5 minutes (300 seconds)
+    const [timeLeft, setTimeLeft] = useState(60); // Timer set to 1 minute (60 seconds)
     const [joinEndTime, setJoinEndTime] = useState(null);
-    const [hasNotifiedTwoMinutes, setHasNotifiedTwoMinutes] = useState(false);
-    const [hasNotifiedOneMinute, setHasNotifiedOneMinute] = useState(false);
+    const [hasNotifiedThirtySeconds, setHasNotifiedThirtySeconds] = useState(false);
+    const [hasNotifiedTenSeconds, setHasNotifiedTenSeconds] = useState(false); // Corrected from "OneMinute" to "TenSeconds"
     const [username, setUsername] = useState(''); // Load the username
     const navigation = useNavigation();
     const { gameName } = route.params; // Retrieve gameName from route params
@@ -55,7 +55,6 @@ export default function BountyHunter({ route }) {
                 clearInterval(interval);
                 if (!gameName || !username) {
                     console.error('gameName or username is undefined! Returning to previous screen.');
-                    Alert.alert('Error', 'Game name or username is missing. Returning to the main screen.');
                     navigation.goBack();
                     return;
                 }
@@ -66,20 +65,20 @@ export default function BountyHunter({ route }) {
             } else {
                 setTimeLeft(Math.ceil(timeDiff / 1000));
 
-                // Trigger notifications based on countdown
-                if (timeLeft <= 120 && !hasNotifiedTwoMinutes) {
-                    sendNotification('Join Game Now!', '2 minutes left to join the game!');
-                    setHasNotifiedTwoMinutes(true);
+                // Trigger notifications based on the current time difference
+                if (timeDiff <= 30000 && !hasNotifiedThirtySeconds) {
+                    sendNotification('Join Game Now!', '30 seconds left to join the game!');
+                    setHasNotifiedThirtySeconds(true);
                 }
-                if (timeLeft <= 60 && !hasNotifiedOneMinute) {
-                    sendNotification('Join Game Now!', '1 minute left to join the game!');
-                    setHasNotifiedOneMinute(true);
+                if (timeDiff <= 10000 && !hasNotifiedTenSeconds) {
+                    sendNotification('Join Game Now!', '10 seconds left to join the game!');
+                    setHasNotifiedTenSeconds(true);
                 }
             }
         }, 1000);
 
         return () => clearInterval(interval); // Cleanup interval on unmount
-    }, [joinEndTime, timeLeft, username, gameName]);
+    }, [joinEndTime, username, gameName, hasNotifiedThirtySeconds, hasNotifiedTenSeconds]);
 
     // Helper function to format time in mm:ss
     const formatTime = (seconds) => {
@@ -140,4 +139,3 @@ const styles = StyleSheet.create({
     instructionText: { fontSize: 18, color: '#fff', marginBottom: 10, textAlign: 'center' },
     roleInstructions: { fontSize: 14, color: '#fff', marginBottom: 5, textAlign: 'center' },
 });
-

@@ -17,7 +17,8 @@ export async function requestNotificationPermission() {
 }
 
 export async function scheduleNotifications(eventDate) {
-    // Your previous scheduling logic, if needed, can go here.
+    // Schedule notifications based on the event date if necessary.
+    // Adjust this function to handle event-based notifications.
 }
 
 Notifications.setNotificationHandler({

@@ -54,13 +54,13 @@ app.post('/create-event', (req, res) => {
                 console.log(`Game available: ${game.name}`);
             }, delay * 1000);
 
-            // Schedule removal from available list after 5 minutes
+            // Schedule removal from available list after 1 minute (instead of 5 minutes)
             setTimeout(() => {
                 // Emit game-unavailable event but don't fully remove from activeGames for ongoing users
                 io.emit('event-unavailable', game.name);
                 games = games.filter(g => g.name !== game.name); // Remove from available games list only
                 console.log(`Game removed from available list: ${game.name}`);
-            }, (delay + 5 * 60) * 1000);
+            }, (delay + 60) * 1000); // 1-minute duration after becoming available
         } else {
             io.emit('event-available', game);
             activeGames.push(game); // Add to active games immediately if available

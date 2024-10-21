@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Alert, TouchableOpacity, TextInput, Button, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { auth } from '../../firebaseConfig.js'; // Importing Firebase auth
+import { auth } from '../../firebaseConfig.js';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = () => {
     const [name, setName] = useState('');
@@ -11,38 +12,43 @@ const ProfileScreen = () => {
     const [totalPoints, setTotalPoints] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
 
+    const loadProfile = async () => {
+        try {
+            const user = auth.currentUser;
+            if (user) setEmail(user.email);
+
+            const storedName = await AsyncStorage.getItem('user_name');
+            const storedUsername = await AsyncStorage.getItem('user_username');
+            const storedBio = await AsyncStorage.getItem('user_bio');
+            const storedPoints = await AsyncStorage.getItem('user_points');
+
+            if (storedName) setName(storedName);
+            if (storedUsername) setUsername(storedUsername);
+            if (storedBio) setBio(storedBio);
+            if (storedPoints) setTotalPoints(parseInt(storedPoints) || 0);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to load profile.');
+            console.error('Error loading profile:', error);
+        }
+    };
+
     useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const user = auth.currentUser;
-                if (user) setEmail(user.email);
-
-                const storedName = await AsyncStorage.getItem('user_name');
-                const storedUsername = await AsyncStorage.getItem('user_username');
-                const storedBio = await AsyncStorage.getItem('user_bio');
-                const storedPoints = await AsyncStorage.getItem('user_points');
-
-                if (storedName) setName(storedName);
-                if (storedUsername) setUsername(storedUsername);
-                if (storedBio) setBio(storedBio);
-                if (storedPoints) setTotalPoints(parseInt(storedPoints) || 0);
-            } catch (error) {
-                Alert.alert('Error', 'Failed to load profile.');
-                console.error('Error loading profile:', error);
-            }
-        };
-
         loadProfile();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadProfile();
+        }, [])
+    );
 
     const saveProfile = async () => {
         try {
             await AsyncStorage.setItem('user_name', name);
-            await AsyncStorage.setItem('user_username', username);  // Save the username
+            await AsyncStorage.setItem('user_username', username);
             await AsyncStorage.setItem('user_bio', bio);
             await AsyncStorage.setItem('user_points', totalPoints.toString());
 
-            console.log('Username saved to AsyncStorage:', username);  // Log the username
             setIsEditing(false);
             Alert.alert('Success', 'Profile updated!');
         } catch (error) {
@@ -50,7 +56,6 @@ const ProfileScreen = () => {
             console.error('Error saving profile:', error);
         }
     };
-
 
     return (
         <View style={styles.container}>

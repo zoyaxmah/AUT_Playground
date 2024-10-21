@@ -90,7 +90,7 @@ export default function GameScreen({ navigation }) {
             const playerName = storedName || 'Anonymous'; // Default to 'Anonymous' if no name is found
 
             if (eventDetails && eventDetails.name && eventDetails.startTime) { // Ensure gameName and startTime are valid
-                const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 5 * 60 * 1000).getTime(); // Pass timestamp
+                const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 0.5 * 60 * 1000).getTime(); // Use 30 minute timer
                 navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name, playerName }); // Navigate to BountyHunter first
             } else {
                 Alert.alert('Error', 'No event available');
@@ -101,6 +101,7 @@ export default function GameScreen({ navigation }) {
             Alert.alert('Error', 'Unable to retrieve player name or navigate to game.');
         }
     };
+
 
     return (
         <View style={styles.container}>
