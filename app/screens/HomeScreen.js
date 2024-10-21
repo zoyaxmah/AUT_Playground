@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#333",  // Dark mode background
     },
     logo: {
-        width: 100, 
+        width: 100,
         height: 60,
         position: 'absolute',
         top: '5%',

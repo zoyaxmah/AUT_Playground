@@ -1,8 +1,8 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore'; // Firestore for storing usernames
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
-// Firebase configuration details
 const firebaseConfig = {
   apiKey: "AIzaSyBGIKtYX7TJBvrjQMVzsei6fynEZ2BC-PM",
   authDomain: "aut-playground.firebaseapp.com",
@@ -28,4 +28,7 @@ if (!auth) {
   });
 }
 
-export { auth };
+// Initialize Firestore
+const db = getFirestore(app); // Firestore instance for storing usernames
+
+export { auth, db }; // Export auth and db

@@ -7,26 +7,37 @@ import GameScreen from '../app/screens/GameScreen';
 import BountyHunter from '../app/screens/BountyHunter/BountyHunter';
 import BountyHunter2 from '../app/screens/BountyHunter/BountyHunter2';
 import WelcomeScreen from '../app/screens/WelcomeScreen';
-import ProfileScreen from '../app/screens/ProfileScreen.js';
-import GameEnded from '../app/screens/BountyHunter/GameEnded'
+import ProfileScreen from '../app/screens/ProfileScreen';
+import GameEnded from '../app/screens/BountyHunter/GameEnded';
+import SignUpScreen from '../app/screens/SignUpScreen'; 
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 
-// Ensure that only `Screen` components are inside the `Stack.Navigator`
-function GameStackNavigator() {
+// Auth stack for sign-up and welcome screens
+function AuthStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="GameScreen" component={GameScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="BountyHunter" component={BountyHunter} />
-      <Stack.Screen name="BountyHunter2" component={BountyHunter2} />
-      <Stack.Screen name="GameEnded" component={GameEnded} /> 
     </Stack.Navigator>
   );
 }
 
-// Ensure that only `Screen` components are inside the `Tab.Navigator`
+// Game stack for all game-related screens
+function GameStackNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="GameScreen" component={GameScreen} />
+      <Stack.Screen name="BountyHunter" component={BountyHunter} />
+      <Stack.Screen name="BountyHunter2" component={BountyHunter2} />
+      <Stack.Screen name="GameEnded" component={GameEnded} />
+    </Stack.Navigator>
+  );
+}
+
+// Main App Navigator including Tab Navigation and Authentication Stack
 export default function AppNavigator() {
   return (
     <Tab.Navigator>

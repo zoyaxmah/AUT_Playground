@@ -1,27 +1,19 @@
 import React, { useState } from 'react';
-import { 
-    View, 
-    StyleSheet, 
-    TextInput, 
-    Button, 
-    Image, 
-    Text, 
-    Alert 
-} from 'react-native';
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword 
-} from 'firebase/auth';
+import { View, StyleSheet, TextInput, Button, Image, Text, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { auth } from '../../firebaseConfig.js'; // Importing Firebase auth
+import { auth, db } from '../../firebaseConfig.js'; // Import Firebase auth and Firestore
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Firebase auth function
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore'; // Firestore for querying and adding data
 
 function SignUpScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [name, setName] = useState(''); // New name state
+    const [username, setUsername] = useState(''); // New username state
 
     const handleSignUp = async () => {
-        if (!email || !password || !confirmPassword) {
+        if (!email || !password || !confirmPassword || !name || !username) {
             Alert.alert('Error', 'All fields are required.');
         } else if (!/^\S+@\S+\.\S+$/.test(email)) {
             Alert.alert('Error', 'Please enter a valid email address.');
@@ -31,17 +23,32 @@ function SignUpScreen({ navigation }) {
             Alert.alert('Error', 'Passwords do not match!');
         } else {
             try {
-                // Create a new user with Firebase Authentication
+                // Step 1: Check if the username already exists in Firestore
+                const usernamesCollection = collection(db, 'usernames');
+                const q = query(usernamesCollection, where('username', '==', username));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    // Username already exists, alert the user
+                    Alert.alert('Error', 'Username already taken. Please choose another one.');
+                    return;
+                }
+
+                // Step 2: If the username is unique, proceed with sign-up
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Store the email locally in AsyncStorage
+                // Step 3: Store email, name, and username locally in AsyncStorage
                 await AsyncStorage.setItem('user_email', email);
+                await AsyncStorage.setItem('user_name', name);
+                await AsyncStorage.setItem('user_username', username);
+
+                // Step 4: Add the username to Firestore to prevent future duplicates
+                await addDoc(usernamesCollection, { username });
 
                 console.log('Account created successfully!');
                 Alert.alert('Success', 'Account created successfully!');
 
-                // Navigate to the Welcome screen
                 navigation.navigate('Welcome');
             } catch (error) {
                 Alert.alert('Error', error.message);
@@ -58,7 +65,19 @@ function SignUpScreen({ navigation }) {
                 resizeMode="contain"
             />
             <Text style={styles.title}>Create an Account</Text>
-            
+
+            <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={name}
+                onChangeText={text => setName(text)}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Username"
+                value={username}
+                onChangeText={text => setUsername(text)}
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Email"

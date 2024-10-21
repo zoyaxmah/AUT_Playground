@@ -39,8 +39,7 @@ export default function GameScreen({ navigation }) {
                     console.log('No available game found');
                 }
             } catch (error) {
-                Alert.alert('Error', 'Unable to fetch event.');
-                console.error('Error fetching event:', error);
+                console.log('Error fetching event:', error);
             }
         };
 
@@ -109,14 +108,14 @@ export default function GameScreen({ navigation }) {
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: -36.853500246993384,
-                    longitude: 174.766484575191,
+                    latitude: -36.853395,
+                    longitude: 174.767024,
                     latitudeDelta: 0.0022,
                     longitudeDelta: 0.0021,
                 }}
             >
                 <Marker
-                    coordinate={{ latitude: -36.853500246993384, longitude: 174.766484575191 }}
+                    coordinate={{ latitude: -36.853395, longitude: 174.767024 }}
                     title="My Location"
                     description="This is where the action happens!"
                 />
