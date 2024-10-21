@@ -12,11 +12,6 @@ function ContactScreen({ navigation }) {
             </Text>
             <Text style={styles.email}>qpg1900@autuni.ac.nz</Text>
             {/* "Back Home" Button */}
-            <Button
-                title="Back Home"
-                onPress={() => navigation.navigate('Home')} // Navigates back to the Home screen
-                color="orange" // Button text color
-            />
         </View>
     );
 }

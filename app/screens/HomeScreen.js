@@ -16,6 +16,13 @@ function Homescreen({ navigation }) {
                 resizeMode="contain"
             />
 
+            <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
+                <Text style={styles.themeButtonText}>
+                    {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                </Text>
+            </TouchableOpacity>
+
+
         </View>
     );
 }

@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import WelcomeScreen from '../app/screens/WelcomeScreen.js'
-import HomeScreen from '../app/screens/HomeScreen.js'
-import GameScreen from '../app/screens/GameScreen.js'
-import ContactScreen from '../app/screens/ContactScreen.js'
+import HomeScreen from '../app/screens/HomeScreen.js';
+import GameScreen from '../app/screens/GameScreen.js';
+import ContactScreen from '../app/screens/ContactScreen.js';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -26,6 +26,7 @@ export default function TabNavigation(){
       name="Contact"
       component={ContactScreen}
       options={{headerShown:false}}  />
+
       
     </Tab.Navigator>
   );
