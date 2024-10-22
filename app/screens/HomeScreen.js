@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     logo: {
-        width: 100, 
+        width: 100,
         height: 60,
     },
     themeButton: {

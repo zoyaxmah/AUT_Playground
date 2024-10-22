@@ -1,36 +1,42 @@
-import React, {useState} from 'react';
-import { View, 
-    StyleSheet,
-    TouchableOpacity, 
-    Text,
-    TextInput,
-    Image,
-    Button,
-} from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig.js';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Text, TextInput, Image, Button, Alert } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Firebase auth function
+import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage for local storage
+import { auth } from '../../firebaseConfig.js'; // Firebase auth instance
 
 function WelcomeScreen({ navigation }) {
-    const [username, setUsername] = useState('');
+    const [usernameOrEmail, setUsernameOrEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(''); 
 
-    
     const handleLogin = async () => {
         setErrorMessage('');
 
-        if (!username || !password) {
-            setErrorMessage('Please enter both email and password.');
-            eturn;
+        if (!usernameOrEmail || !password) {
+            setErrorMessage('Please enter both username/email and password.');
+            return;
         }
 
         try {
-            // Firebase Authentication with email and password using modular import
-            await signInWithEmailAndPassword(auth, username, password);
+            let email = usernameOrEmail;
+
+            // Check if it's a username, and get the associated email
+            if (!usernameOrEmail.includes('@')) {
+                const storedEmail = await AsyncStorage.getItem('user_email');
+                const storedUsername = await AsyncStorage.getItem('user_username');
+                if (storedUsername === usernameOrEmail) {
+                    email = storedEmail;
+                } else {
+                    throw new Error('Username not found');
+                }
+            }
+
+            await signInWithEmailAndPassword(auth, email, password);
             console.log('Logged in successfully!');
+
             navigation.navigate('TabNavigate');
-        } catch(error){
-            setErrorMessage('Invalid email or password.');
+        } catch (error) {
+            setErrorMessage('Invalid username/email or password.');
             console.error('Login error:', error.message);
         }
     };
@@ -43,14 +49,15 @@ function WelcomeScreen({ navigation }) {
                 style={styles.logo}
                 resizeMode="contain"
             />
+
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={text => setUsername(text)}
+                    placeholder="Username or Email"
+                    value={usernameOrEmail}
+                    onChangeText={text => setUsernameOrEmail(text)}
                 />
-                <TextInput  
+                <TextInput
                     style={styles.input}
                     placeholder="Password"
                     secureTextEntry={true}
@@ -63,11 +70,8 @@ function WelcomeScreen({ navigation }) {
                     <Text style={styles.errorText}>{errorMessage}</Text>
                 ) : null}
 
-            <Button 
-                style={styles.loginButton}
-                title="Login"
-                onPress={handleLogin}
-            />
+            <Button title="Login" onPress={handleLogin} />
+
             <View style={styles.signupContainer}>
                 <Text style={styles.signupText}>
                     Don't have an account?{' '}
@@ -76,73 +80,19 @@ function WelcomeScreen({ navigation }) {
                     </TouchableOpacity>
                 </Text>
             </View>
-        </View>   
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    background:{
-        flex: 1,
-        backgroundColor: "#fc6a26",
-        justifyContent:'center',
-        alignItems: 'center',
-    },
-    loginButton: {
-        width: 110,
-        height: 40,
-        backgroundColor: "#ffd13b",
-        position: "absolute",
-        bottom: "30%",
-        borderRadius:5,
-        justifyContent:'center',
-        alignItems:'center',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    inputContainer: {
-        width: 250,
-        marginBottom: 20,
-        paddingHorizontal: 20,
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        backgroundColor: 'white',
-    },
-    logo: {
-        width: 120,
-        height: 80,
-        marginBottom: 20,
-    },
-    loginButton: {
-        height: 20,
-        width: 100,
-        backgroundColor: 'orange',
-    
-    },
-    signupContainer: {
-        marginTop: 20,
-        alignItems: 'center',
-    },
-    signupText: {
-        fontSize: 14,
-        color: '#fff',
-    },
-    signupLink: {
-        color: '#000000',
-        fontWeight: 'bold',
-    },
-    errorText: {
-        color: 'red',  // Set the color for error messages
-        marginBottom: 10,
-    }
+    background: { flex: 1, backgroundColor: "#fc6a26", justifyContent: 'center', alignItems: 'center' },
+    inputContainer: { width: 250, marginBottom: 20, paddingHorizontal: 20 },
+    input: { height: 40, borderColor: 'gray', borderWidth: 1, borderRadius: 5, marginBottom: 10, paddingHorizontal: 10, backgroundColor: 'white' },
+    logo: { width: 120, height: 80, marginBottom: 20 },
+    signupContainer: { marginTop: 20, alignItems: 'center' },
+    signupText: { fontSize: 14, color: '#fff' },
+    signupLink: { color: '#000000', fontWeight: 'bold' },
+    errorText: { color: 'red', marginBottom: 10 },
 });
 
 export default WelcomeScreen;

@@ -1,162 +1,134 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Alert, TouchableOpacity, TextInput, Button, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../../firebaseConfig.js';
+import { useFocusEffect } from '@react-navigation/native';
 
-function ProfileScreen() {
-    // Mock user data
-    const [email] = useState('shreyas@example.com');  // User's email
-    const [name, setName] = useState('Shreyas');
-    const [bio, setBio] = useState('Loves gaming and coding.');
+const ProfileScreen = () => {
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [bio, setBio] = useState('');
+    const [email, setEmail] = useState('');
+    const [totalPoints, setTotalPoints] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
 
-    const [isEditing, setIsEditing] = useState(false);  // Editing state
+    const loadProfile = async () => {
+        try {
+            const user = auth.currentUser;
+            if (user) setEmail(user.email);
 
-    // Toggle editing mode
-    const handleEditToggle = () => {
-        setIsEditing(!isEditing);
+            const storedName = await AsyncStorage.getItem('user_name');
+            const storedUsername = await AsyncStorage.getItem('user_username');
+            const storedBio = await AsyncStorage.getItem('user_bio');
+            const storedPoints = await AsyncStorage.getItem('user_points');
+
+            if (storedName) setName(storedName);
+            if (storedUsername) setUsername(storedUsername);
+            if (storedBio) setBio(storedBio);
+            if (storedPoints) setTotalPoints(Number(storedPoints) || 0);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to load profile.');
+            console.error('Error loading profile:', error);
+        }
     };
 
-    // Mock rewards data
-    const rewards = [
-        { id: 1, title: '10% Off your next coffee!', cost: 25 },
-        { id: 2, title: 'Free Sushi!', cost: 100 },
-        { id: 3, title: 'Ball 2024 Ticket!!!', cost: 250 }
-    ];
+    useEffect(() => {
+        loadProfile();
+    }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadProfile();
+        }, [])
+    );
+
+    const saveProfile = async () => {
+        try {
+            await AsyncStorage.setItem('user_name', name);
+            await AsyncStorage.setItem('user_username', username);
+            await AsyncStorage.setItem('user_bio', bio);
+            await AsyncStorage.setItem('user_points', totalPoints.toString());
+
+            setIsEditing(false);
+            Alert.alert('Success', 'Profile updated!');
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save profile.');
+            console.error('Error saving profile:', error);
+        }
+    };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            
-            {/* Profile Heading */}
-            <Text style={styles.sectionHeading}>Profile</Text>
+        <View style={styles.container}>
+            <Text style={styles.label}>Email: {email}</Text>
 
-            {/* User Profile Details */}
-            <View style={styles.profileBox}>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.info}>{email}</Text>
-
-                <Text style={styles.label}>Name:</Text>
-                {isEditing ? (
-                    <TextInput 
+            {isEditing ? (
+                <>
+                    <TextInput
                         style={styles.input}
                         value={name}
                         onChangeText={setName}
+                        placeholder="Enter your name"
+                        placeholderTextColor="#ccc"
                     />
-                ) : (
-                    <Text style={styles.info}>{name}</Text>
-                )}
-
-                <Text style={styles.label}>Bio:</Text>
-                {isEditing ? (
-                    <TextInput 
+                    <TextInput
+                        style={styles.input}
+                        value={username}
+                        onChangeText={setUsername}
+                        placeholder="Enter your username"
+                        placeholderTextColor="#ccc"
+                    />
+                    <TextInput
                         style={styles.input}
                         value={bio}
                         onChangeText={setBio}
+                        placeholder="Enter your bio"
+                        placeholderTextColor="#ccc"
                     />
-                ) : (
-                    <Text style={styles.info}>{bio}</Text>
-                )}
+                    <Button title="Save" onPress={saveProfile} />
+                </>
+            ) : (
+                <>
+                    <Text style={styles.label}>Name: {name || 'N/A'}</Text>
+                    <Text style={styles.label}>Username: {username || 'N/A'}</Text>
+                    <Text style={styles.label}>Bio: {bio || 'N/A'}</Text>
+                    <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => setIsEditing(true)}
+                    >
+                        <Text style={styles.editButtonText}>Edit Profile</Text>
+                    </TouchableOpacity>
+                </>
+            )}
 
-                {/* Edit button */}
-                <TouchableOpacity style={styles.editButton} onPress={handleEditToggle}>
-                    <Text style={styles.editButtonText}>{isEditing ? 'Save' : 'Edit'}</Text>
-                </TouchableOpacity>
+            <View style={styles.walletContainer}>
+                <Text style={styles.rewardsHeader}>Total Points: {totalPoints}</Text>
+                <Text style={styles.rewardsHeader}>Available Rewards:</Text>
+                <View style={styles.rewardItem}>
+                    <Text style={styles.rewardText}>100 Points - Unlock Exclusive Avatar</Text>
+                </View>
+                <View style={styles.rewardItem}>
+                    <Text style={styles.rewardText}>200 Points - Get 5 Extra Lives</Text>
+                </View>
+                <View style={styles.rewardItem}>
+                    <Text style={styles.rewardText}>500 Points - VIP Status for a Week</Text>
+                </View>
             </View>
-
-            {/* Rewards Heading */}
-            <Text style={styles.sectionHeading}>Rewards</Text>
-
-            {/* Rewards Available */}
-            <View style={styles.rewardsBox}>
-                {rewards.map(reward => (
-                    <View key={reward.id} style={styles.rewardItem}>
-                        <Text style={styles.rewardText}>{reward.title}</Text>
-                        <Text style={styles.rewardCost}>{reward.cost} Tokens</Text>
-                    </View>
-                ))}
-            </View>
-        </ScrollView>
+        </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 20,
-        paddingBottom: 50,
-        paddingTop: 70,
-        flexGrow: 1,
-        backgroundColor: '#fc6a26',  // Same as the light mode of other pages
-    },
-    sectionHeading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',  // Black heading color
-        marginBottom: 10,
-    },
-    profileBox: {
-        backgroundColor: '#000',
-        borderRadius: 15,
-        padding: 20,
-        marginBottom: 20,
-        elevation: 3,  // For shadow on Android
-        shadowColor: '#000',  // For shadow on iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 5,
-        color: '#ffd13b',
-    },
-    info: {
-        fontSize: 16,
-        marginBottom: 15,
-        color: '#fff',
-    },
+    container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fc6a26' },
+    label: { color: 'white', fontSize: 18, marginBottom: 8 },
     input: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-        marginBottom: 15,
-        fontSize: 16,
-        paddingBottom: 5,
+        backgroundColor: '#1f1f1f', color: 'white', padding: 10, marginBottom: 16, borderRadius: 5, borderColor: '#555', borderWidth: 1,
     },
-    editButton: {
-        backgroundColor: '#ffd13b',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-    },
-    editButtonText: {
-        color: '#000',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    rewardsBox: {
-        backgroundColor: '#000',
-        borderRadius: 15,
-        padding: 20,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-    },
-    rewardItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    rewardText: {
-        fontSize: 16,
-        color: '#fff',
-    },
-    rewardCost: {
-        fontSize: 16,
-        color: '#FFA500',
-    },
+    editButton: { marginTop: 10, backgroundColor: '#ffd13b', padding: 10, borderRadius: 5 },
+    editButtonText: { color: '#000', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+    walletContainer: { marginTop: 20, padding: 15, backgroundColor: '#fff', borderRadius: 10 },
+    rewardsHeader: { color: '#333', fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
+    rewardItem: { padding: 10, backgroundColor: '#e0e0e0', borderRadius: 5, marginVertical: 5 },
+    rewardText: { fontSize: 14, color: '#333' },
 });
 
 export default ProfileScreen;
-
-
