@@ -6,15 +6,7 @@ function Homescreen({ navigation }) {
     const [isDarkMode, setIsDarkMode] = useState(false);  // State to manage theme
     const [username, setUsername] = useState('');  // State to store username
 
-    // Mock function to simulate fetching the username (you would replace this with actual data fetching logic)
-    useEffect(() => {
-        const fetchUsername = async () => {
-            const fetchedUsername = "Shreyas";  // Mocked username
-            setUsername(fetchedUsername);
-        };
-
-        fetchUsername();
-    }, []);
+    
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
@@ -53,7 +45,7 @@ function Homescreen({ navigation }) {
 
             {/* Welcome message with username */}
             <Text style={isDarkMode ? styles.darkWelcomeText : styles.lightWelcomeText}>
-                Welcome, {username}!
+                Welcome!
             </Text>
 
             {/* Scrollable content for the feed */}
@@ -62,7 +54,7 @@ function Homescreen({ navigation }) {
                 {/* "Feeling Bored?" Button */}
                 <TouchableOpacity 
                     style={styles.feelingBoredBox} 
-                    onPress={() => navigation.navigate('Game')}  // Navigate to the GameScreen
+                    onPress={() => navigation.navigate('Games')}  // Navigate to the GameScreen
                 >
                     <View style={styles.feelingBoredContent}>
                         <Text style={styles.feelingBoredTitle}>Feeling Bored?</Text>

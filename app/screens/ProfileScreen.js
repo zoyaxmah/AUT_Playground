@@ -59,7 +59,7 @@ const ProfileScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Email: {email}</Text>
+            <Text style={styles.header}>Profile</Text>
 
             {isEditing ? (
                 <>
@@ -88,9 +88,12 @@ const ProfileScreen = () => {
                 </>
             ) : (
                 <>
-                    <Text style={styles.label}>Name: {name || 'N/A'}</Text>
-                    <Text style={styles.label}>Username: {username || 'N/A'}</Text>
-                    <Text style={styles.label}>Bio: {bio || 'N/A'}</Text>
+                    <View style={styles.profileBox}>
+                        <Text style={styles.profileLabel}>Email: {email}</Text>
+                        <Text style={styles.profileLabel}>Name: {name || 'N/A'}</Text>
+                        <Text style={styles.profileLabel}>Username: {username || 'N/A'}</Text>
+                        <Text style={styles.profileLabel}>Bio: {bio || 'N/A'}</Text>
+                    </View>
                     <TouchableOpacity
                         style={styles.editButton}
                         onPress={() => setIsEditing(true)}
@@ -100,35 +103,121 @@ const ProfileScreen = () => {
                 </>
             )}
 
+            <Text style={styles.walletHeader}>Wallet</Text>
             <View style={styles.walletContainer}>
                 <Text style={styles.rewardsHeader}>Total Points: {totalPoints}</Text>
                 <Text style={styles.rewardsHeader}>Available Rewards:</Text>
                 <View style={styles.rewardItem}>
-                    <Text style={styles.rewardText}>100 Points - Unlock Exclusive Avatar</Text>
+                    <Text style={styles.rewardText}>50 Points - 10% coupon for Mojo Coffee!</Text>
                 </View>
                 <View style={styles.rewardItem}>
-                    <Text style={styles.rewardText}>200 Points - Get 5 Extra Lives</Text>
+                    <Text style={styles.rewardText}>150 Points - Free Sub at Subway!</Text>
                 </View>
                 <View style={styles.rewardItem}>
-                    <Text style={styles.rewardText}>500 Points - VIP Status for a Week</Text>
+                    <Text style={styles.rewardText}>500 Points - 2024 Ball Ticket!!</Text>
                 </View>
             </View>
+
+            <TouchableOpacity
+                style={styles.redeemButton}
+                onPress={() => {}}
+            >
+                <Text style={styles.redeemButtonText}>Redeem Rewards</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fc6a26' },
-    label: { color: 'white', fontSize: 18, marginBottom: 8 },
-    input: {
-        backgroundColor: '#1f1f1f', color: 'white', padding: 10, marginBottom: 16, borderRadius: 5, borderColor: '#555', borderWidth: 1,
+    container: { 
+        flex: 1, 
+        justifyContent: 'center', 
+        padding: 20, 
+        backgroundColor: '#fc6a26' 
     },
-    editButton: { marginTop: 10, backgroundColor: '#ffd13b', padding: 10, borderRadius: 5 },
-    editButtonText: { color: '#000', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
-    walletContainer: { marginTop: 20, padding: 15, backgroundColor: '#fff', borderRadius: 10 },
-    rewardsHeader: { color: '#333', fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
-    rewardItem: { padding: 10, backgroundColor: '#e0e0e0', borderRadius: 5, marginVertical: 5 },
-    rewardText: { fontSize: 14, color: '#333' },
+    header: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: '#000',
+        textAlign: 'center',
+        marginBottom: 20
+    },
+    input: {
+        backgroundColor: '#fff', 
+        color: '#333', 
+        padding: 10, 
+        marginBottom: 16, 
+        borderRadius: 8, 
+        borderColor: '#ccc', 
+        borderWidth: 1
+    },
+    profileBox: {
+        padding: 20,
+        borderRadius: 10,
+        backgroundColor: '#000',
+        marginBottom: 20
+    },
+    profileLabel: {
+        color: '#ffd13b',
+        fontSize: 16,
+        marginBottom: 6
+    },
+    editButton: { 
+        marginTop: 10, 
+        backgroundColor: '#ffd13b', 
+        padding: 10, 
+        borderRadius: 5 
+    },
+    editButtonText: { 
+        color: '#000', 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+        textAlign: 'center' 
+    },
+    walletHeader: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: '#000',
+        textAlign: 'center',
+        marginTop: 20,
+        marginBottom: 10
+    },
+    walletContainer: { 
+        marginTop: 10, 
+        padding: 15, 
+        backgroundColor: '#000', 
+        borderRadius: 10,
+        borderColor: '#ffd13b',
+        borderWidth: 1
+    },
+    rewardsHeader: { 
+        color: '#ffd13b', 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+        marginBottom: 10 
+    },
+    rewardItem: { 
+        padding: 10, 
+        backgroundColor: '#ffd13b', 
+        borderRadius: 5, 
+        marginVertical: 5 
+    },
+    rewardText: { 
+        fontSize: 14, 
+        color: '#333' 
+    },
+    redeemButton: { 
+        marginTop: 20, 
+        backgroundColor: '#ffd13b', 
+        padding: 10, 
+        borderRadius: 5 
+    },
+    redeemButtonText: { 
+        color: '#000', 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+        textAlign: 'center' 
+    },
 });
 
 export default ProfileScreen;
