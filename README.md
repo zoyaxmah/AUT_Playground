@@ -97,3 +97,89 @@ If you face issues with dependencies or Metro Bundler, clear the cache and try r
 
 npx expo start -c
 ```
+#Bounty Hunter Server Setup 
+
+## Overview
+
+This section explains how to set up and run the Bounty Hunter server using the provided files, and how to replace the IP address in your configuration and test files.
+
+## Prerequisites
+
+Make sure the following tools are installed before proceeding:
+ - **Node.js (v14.x or higher): Download here.
+ - **npm: Comes with Node.js. Check if it's installed by running:
+   ```bash
+   npm -v
+   ```
+- **Postman or VSCode REST Client (optional): For testing API requests.
+
+## Server Setup 
+
+1. **Install Dependecies**:
+   First, navigate to your server directory and install the necessary dependencies:
+
+   ```bash
+   npm install
+   ```
+2. **Set up Environment Variables**:
+   Ensure that the .env file is correctly set up with the necessary variables. Here's an example .env file:
+   PORT=3000
+   This ensures that the server will run on port 3000.
+
+3. **Update IP Adress in config.js**:
+   You need to replace the IP address in your config.js file with the current local IP address of your machine. Follow these steps:
+   - **Open the config/config.js file.**
+   - **Find the BASE_URL variable.**
+   - **Replace the placeholder IP address (or localhost) with your machine's local IP address.**
+
+   For example:
+   ```js
+   export const BASE_URL = 'http://192.168.x.x:3000'; // Replace with your local IP address
+    ```
+   Make sure to replace 192.168.x.x with your actual local IP address.
+
+4. **Update Ip Address in test-event.http**
+   Similarly, update the IP address in your test-event.http file to reflect your local machine's IP. Open the test-event.http file and update the requests to use your local IP address.
+   ```http
+   POST http://192.168.x.x:3000/create-event
+    Content-Type: application/json
+
+    {
+      "name": "Bounty Hunter Test Event",
+      "description": "This is a test event for the Bounty Hunter game.",
+      "startTime": "2024-10-30T14:00:00Z"
+    }
+    ```
+5. **Running the Server**
+   To run the server, navigate to the server directory and run the following command:
+   ```bash
+   node server/server.js
+   ```
+
+   You should see the following output, indicating that the server is running:
+   ```arduino
+   Server running on http://192.168.x.x:3000
+   ```
+
+# Testing the Server with test-event.http
+
+If you're using VSCode, you can use the REST Client extension to test the HTTP requests in the test-event.http file. To do so:
+
+1.**Open test-event.http in VSCode.**
+2.**Ensure that the IP addresses are replaced with your local IP (as explained above).**
+3.**Adjust the event time for when you want the event to start.**
+4.**Run the requests directly from the file by clicking on "Send Request" (available when the REST Client extension is installed).**
+
+Alternatively, you can use Postman or cURL to send the same HTTP requests.
+
+
+# Common Issues and Solutions
+
+## Server Not Running on the Correct IP
+Ensure that you've updated the IP address in the config.js, test-event.http, and that your machine's firewall or security settings allow connections to port 3000.
+
+## Testing Issues
+If you're using Postman or any other tool, ensure that the URLs use the correct IP address and port number. Ensure your machine's local network supports this IP-based connection if testing from multiple devices.
+
+# Conclusion
+After following these steps, you should have both AUT Playground and Bounty Hunter server up and running. You can now test and deploy your project seamlessly!
