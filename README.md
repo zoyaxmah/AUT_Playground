@@ -115,51 +115,52 @@ Make sure the following tools are installed before proceeding:
 
 ## Server Setup 
 
-1. **Install Dependecies**:
-   First, navigate to your server directory and install the necessary dependencies:
+1.  **Install Dependecies**:
+    First, navigate to your server directory and install the necessary dependencies:
 
-   ```bash
-   npm install
-   ```
-2. **Set up Environment Variables**:
-   Ensure that the .env file is correctly set up with the necessary variables. Here's an example .env file:
-   PORT=3000
-   This ensures that the server will run on port 3000.
-
-3. **Update IP Adress in config.js**:
-   You need to replace the IP address in your config.js file with the current local IP address of your machine. Follow these steps:
-   - **Open the config/config.js file.**
-   - **Find the BASE_URL variable.**
-   - **Replace the placeholder IP address (or localhost) with your machine's local IP address.**
-
-   For example:
-   ```js
-   export const BASE_URL = 'http://192.168.x.x:3000'; // Replace with your local IP address
+    ```bash
+    npm install
     ```
-   Make sure to replace 192.168.x.x with your actual local IP address.
+    
+2.  **Set up Environment Variables**:
+    Ensure that the .env file is correctly set up with the necessary variables. Here's an example .env file:
+    PORT=3000
+    This ensures that the server will run on port 3000.
 
-4. **Update Ip Address in test-event.http**
-   Similarly, update the IP address in your test-event.http file to reflect your local machine's IP. Open the test-event.http file and update the requests to use your local IP address.
-   ```http
-   POST http://192.168.x.x:3000/create-event
-    Content-Type: application/json
+3.  **Update IP Adress in config.js**:
+    You need to replace the IP address in your config.js file with the current local IP address of your machine. Follow these steps:
+    - **Open the config/config.js file.**
+    - **Find the BASE_URL variable.**
+    - **Replace the placeholder IP address (or localhost) with your machine's local IP address.**
 
-    {
-      "name": "Bounty Hunter Test Event",
-      "description": "This is a test event for the Bounty Hunter game.",
-      "startTime": "2024-10-30T14:00:00Z"
-    }
+    For example:
+    ```js
+    export const BASE_URL = 'http://192.168.x.x:3000'; // Replace with your local IP address
     ```
-5. **Running the Server**
-   To run the server, navigate to the server directory and run the following command:
-   ```bash
-   node server/server.js
-   ```
+    Make sure to replace 192.168.x.x with your actual local IP address.
 
-   You should see the following output, indicating that the server is running:
-   ```arduino
-   Server running on http://192.168.x.x:3000
-   ```
+4.  **Update Ip Address in test-event.http**
+    Similarly, update the IP address in your test-event.http file to reflect your local machine's IP. Open the test-event.http file and update the requests to use your local IP address.
+    ```http
+    POST http://192.168.x.x:3000/create-event
+     Content-Type: application/json
+
+     {
+       "name": "Bounty Hunter Test Event",
+       "description": "This is a test event for the Bounty Hunter game.",
+       "startTime": "2024-10-30T14:00:00Z"
+     }
+    ```
+5.  **Running the Server**
+    To run the server, navigate to the server directory and run the following command:
+    ```bash
+    node server/server.js
+    ```
+
+    You should see the following output, indicating that the server is running:
+    ```arduino
+    Server running on http://192.168.x.x:3000
+    ```
 
 # Testing the Server with test-event.http
 
