@@ -175,10 +175,10 @@ Alternatively, you can use Postman or cURL to send the same HTTP requests.
 
 # Common Issues and Solutions
 
-## Server Not Running on the Correct IP
+- **Server Not Running on the Correct IP**
 Ensure that you've updated the IP address in the config.js, test-event.http, and that your machine's firewall or security settings allow connections to port 3000.
 
-## Testing Issues
+- **Testing Issues**
 If you're using Postman or any other tool, ensure that the URLs use the correct IP address and port number. Ensure your machine's local network supports this IP-based connection if testing from multiple devices.
 
 # Conclusion
