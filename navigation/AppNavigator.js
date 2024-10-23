@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../app/screens/HomeScreen';
 import ContactScreen from '../app/screens/ContactScreen';
 import GameScreen from '../app/screens/GameScreen';
@@ -45,17 +45,18 @@ export default function AppNavigator() {
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="ellipse-outline" size={size} color={color} />
         ),  // Using the same 'ellipse-outline' icon for all tabs
-        tabBarActiveTintColor: '#ffd13b',  
-        tabBarInactiveTintColor: '#fc6a26',   
+        tabBarActiveTintColor: '#ffd13b',
+        tabBarInactiveTintColor: '#fc6a26',
         tabBarStyle: {
           backgroundColor: '#000',
           borderTopWidth: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 10,             
+          fontSize: 10,
         },
       }}
     >
+
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -69,7 +70,7 @@ export default function AppNavigator() {
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ headerShown: false }} 
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Contact"

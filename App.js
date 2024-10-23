@@ -7,9 +7,11 @@ import TabNavigation from './navigation/AppNavigator';
 import WelcomeScreen from './app/screens/WelcomeScreen';
 import SignUpScreen from './app/screens/SignUpScreen';
 import { io } from 'socket.io-client'; // Import Socket.io client
+import { LogBox } from 'react-native';
 
 const Stack = createStackNavigator();
 const socket = io('http://localhost:3000'); // Ensure the server is running
+LogBox.ignoreLogs(['The action \'NAVIGATE\' with payload']);
 
 export default function App() {
   useEffect(() => {
