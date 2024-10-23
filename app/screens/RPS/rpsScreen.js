@@ -7,7 +7,7 @@ import { BASE_URL } from '../../config/config'; // Use centralized config
 
 const socket = io(BASE_URL);
 
-export default function BountyHunter({ route }) {
+export default function rpsScreen({ route }) {
     const [timeLeft, setTimeLeft] = useState(300); // Default to 5 minutes (300 seconds)
     const [joinEndTime, setJoinEndTime] = useState(null);
     const [hasNotifiedTwoMinutes, setHasNotifiedTwoMinutes] = useState(false); // Track 2-minute notification
@@ -37,7 +37,7 @@ export default function BountyHunter({ route }) {
             if (timeDiff <= 0) {
                 clearInterval(interval);
                 // Pass both gameName and playerName when navigating to BountyHunter2
-                navigation.replace('BountyHunter2', { gameName: gameName, playerName: playerName });
+                navigation.replace('rpsScreen2', { gameName: gameName, playerName: playerName });
             } else {
                 setTimeLeft(Math.ceil(timeDiff / 1000)); // Update the countdown in seconds
 

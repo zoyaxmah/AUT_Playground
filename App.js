@@ -9,7 +9,7 @@ import SignUpScreen from './app/screens/SignUpScreen';
 import { io } from 'socket.io-client'; // Import Socket.io client
 
 const Stack = createStackNavigator();
-const socket = io('http://localhost:3000'); // Ensure the server is running
+const socket = io('http://localhost:8081'); // Ensure the server is running
 
 export default function App() {
   useEffect(() => {

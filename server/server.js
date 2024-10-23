@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const moment = require('moment-timezone');
-const gameHandler = require('./gameHandler');
+const gameHandler = require('./bountyHandler');
 const cors = require('cors');
 
 const app = express();
@@ -14,7 +14,7 @@ const io = new Server(server, {
     },
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8081;
 let games = [];
 let activeGames = []; // Track active games that are in progress
 
@@ -105,5 +105,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Server running on http://192.168.1.65:${PORT}`);
+    console.log(`Server running on http://192.168.106.116:${PORT}`);
 });

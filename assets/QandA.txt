@@ -1,0 +1,6 @@
+Which building would students doing Computer Science be in?,
+How many options are in the food court in Hikuwai Plaza?,
+How many floors does the library have in total?,
+What is the name of the street in the middle of campus?,
+What time does Newsfeed close?,
+Who is the best TA in COMP602?
