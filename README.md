@@ -172,7 +172,9 @@ If you're using VSCode, you can use the REST Client extension to test the HTTP r
   try, go to the respective files. 
   
 2.**Ensure that the IP addresses are replaced with your local IP (as explained above).**
+
 3.**Adjust the event time for when you want the event to start.**
+
 4.**Run the requests directly from the file by clicking on "Send Request" (available when the REST Client extension is installed).**
 
 Alternatively, you can use Postman or cURL to send the same HTTP requests.
