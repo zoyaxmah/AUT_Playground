@@ -167,6 +167,7 @@ Make sure the following tools are installed before proceeding:
 If you're using VSCode, you can use the REST Client extension to test the HTTP requests in the test-event.http file. To do so:
 
 1.**Open test-event.http or test-event2.http in VSCode.**
+
   test-event.http is for running our first game, Bounty Hunter and test-event2.http is for running our second game Know Your Campus! Depending on which you would like to 
   try, go to the respective files. 
 2.**Ensure that the IP addresses are replaced with your local IP (as explained above).**
