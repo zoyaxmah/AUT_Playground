@@ -47,7 +47,15 @@ export default function GameScreen({ navigation }) {
         fetchEvent(); // Fetch event on mount
 
         return () => {
-            socket.off('event-available');
+            socket.off('event-available', (ameData) => {
+                setEventDetails(gameData);
+                setIsGameAvailable(true);
+                console.log('Real-time event available: ${gameData.name}');
+            });
+
+            return () => {
+                socket.off('event available');
+            };
         };
     }, []);
 
@@ -56,7 +64,7 @@ export default function GameScreen({ navigation }) {
         socket.on('event-available', (game) => {
             setEventDetails(game);
             setIsGameAvailable(true);
-            console.log(`Game available: ${game.name}`);
+            console.log(`Game available: ${game.name} ${game.description}`);
         });
 
         // Listen for events being marked as unavailable
@@ -86,13 +94,24 @@ export default function GameScreen({ navigation }) {
 
     const handleJoinGame = async () => {
         // Retrieve the player's name from AsyncStorage
+        console.log(eventDetails.startTime);
+
         try {
             const storedName = await AsyncStorage.getItem('user_name');
             const playerName = storedName || 'Anonymous'; // Default to 'Anonymous' if no name is found
-
+    
             if (eventDetails && eventDetails.name && eventDetails.startTime) { // Ensure gameName and startTime are valid
-                const joinEndTime = new Date(new Date(eventDetails.startTime).getTime() + 0.5 * 60 * 1000).getTime(); // Use 30 minute timer
-                navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name, playerName }); // Navigate to BountyHunter first
+                const joinEndTime = new Date(new Date(eventDetails.startTime).getTime()+10*1000).getTime(); // Use 30-minute timer
+    
+                // Check which game to navigate to
+                if (eventDetails.name === 'Bounty Hunter') {
+                    navigation.navigate('BountyHunter', { joinEndTime, gameName: eventDetails.name, playerName });
+                } else if (eventDetails.name === 'Know Your Campus') {
+                    navigation.navigate('KnowYourCampus', { joinEndTime, gameName: eventDetails.name, playerName });
+                } else {
+                    Alert.alert('Error', 'Unknown game event');
+                    console.error('Unknown game name in eventDetails');
+                }
             } else {
                 Alert.alert('Error', 'No event available');
                 console.error('Missing eventDetails or game name');
@@ -102,6 +121,7 @@ export default function GameScreen({ navigation }) {
             Alert.alert('Error', 'Unable to retrieve player name or navigate to game.');
         }
     };
+    
 
 
     return (

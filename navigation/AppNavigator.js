@@ -11,6 +11,11 @@ import WelcomeScreen from '../app/screens/WelcomeScreen';
 import ProfileScreen from '../app/screens/ProfileScreen';
 import GameEnded from '../app/screens/BountyHunter/GameEnded';
 import SignUpScreen from '../app/screens/SignUpScreen';
+import KnowYourCampus from '../app/screens/KnowYourCampus/KnowYourCampus';
+import KnowYourCampus2 from '../app/screens/KnowYourCampus/KnowYourCampus2';
+
+import GameEnded2 from '../app/screens/KnowYourCampus/GameEnded2';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -33,6 +38,11 @@ function GameStackNavigator() {
       <Stack.Screen name="BountyHunter" component={BountyHunter} />
       <Stack.Screen name="BountyHunter2" component={BountyHunter2} />
       <Stack.Screen name="GameEnded" component={GameEnded} />
+
+      <Stack.Screen name="KnowYourCampus" component={KnowYourCampus}/>
+      <Stack.Screen name="KnowYourCampus2" component={KnowYourCampus2}/>
+      <Stack.Screen name="GameEnded2" component={GameEnded2} />
+
     </Stack.Navigator>
   );
 }
