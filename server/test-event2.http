@@ -4,5 +4,5 @@ Content-Type: application/json
 {
   "name": "Know Your Campus",
   "description": "Answer some questions\nabout the campus!",
-  "startTime": "2024-10-25T12:16+13:00"
+  "startTime": "2024-10-25T12:16:00+13:00"
 }
