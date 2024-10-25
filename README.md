@@ -162,11 +162,13 @@ Make sure the following tools are installed before proceeding:
     Server running on http://192.168.x.x:3000
     ```
 
-# Testing the Server with test-event.http
+# Testing the Server and games with test-event.http and test-event2.http
 
 If you're using VSCode, you can use the REST Client extension to test the HTTP requests in the test-event.http file. To do so:
 
-1.**Open test-event.http in VSCode.**
+1.**Open test-event.http or test-event2.http in VSCode.**
+  test-event.http is for running our first game, Bounty Hunter and test-event2.http is for running our second game Know Your Campus! Depending on which you would like to 
+  try, go to the respective files. 
 2.**Ensure that the IP addresses are replaced with your local IP (as explained above).**
 3.**Adjust the event time for when you want the event to start.**
 4.**Run the requests directly from the file by clicking on "Send Request" (available when the REST Client extension is installed).**
